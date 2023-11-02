@@ -20,9 +20,9 @@ from controlnet.cldm.ddim_hacked import DDIMSampler
 preprocessor = None
 
 model_name = 'control_v11p_sd15_scribble'
-model = create_model(f'/work/users/g/o/gongbang/advertisement/controlnet/models/control_v11p_sd15_scribble.yaml').cpu()
-model.load_state_dict(load_state_dict('/work/users/g/o/gongbang/advertisement/controlnet/models/v1-5-pruned.ckpt', location='cuda'), strict=False)
-model.load_state_dict(load_state_dict(f'/work/users/g/o/gongbang/advertisement/controlnet/models/control_v11p_sd15_scribble.pth', location='cuda'), strict=False)
+model = create_model('./controlnet/models/control_v11p_sd15_scribble.yaml').cpu()
+model.load_state_dict(load_state_dict('./controlnet/models/v1-5-pruned.ckpt', location='cuda'), strict=False)
+model.load_state_dict(load_state_dict('./controlnet/models/control_v11p_sd15_scribble.pth', location='cuda'), strict=False)
 model = model.cuda()
 ddim_sampler = DDIMSampler(model)
 
