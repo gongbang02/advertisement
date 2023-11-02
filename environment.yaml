@@ -46,7 +46,7 @@ dependencies:
       - xformers
       - scikit-learn 
       - numpy==1.24.2
-      - -U audiocraft
+      - audiocraft
       - flashy>=0.0.1
       - hydra-core>=1.1
       - hydra_colorlog
