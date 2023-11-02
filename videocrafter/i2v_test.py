@@ -13,8 +13,8 @@ class Image2Video():
         self.result_dir = result_dir
         if not os.path.exists(self.result_dir):
             os.mkdir(self.result_dir)
-        ckpt_path='checkpoints/i2v_512_v1/model.ckpt'
-        config_file='configs/inference_i2v_512_v1.0.yaml'
+        ckpt_path='./videocrafter/checkpoints/i2v_512_v1/model.ckpt'
+        config_file='./videocrafter/configs/inference_i2v_512_v1.0.yaml'
         config = OmegaConf.load(config_file)
         model_config = config.pop("model", OmegaConf.create())
         model_config['params']['unet_config']['params']['use_checkpoint']=False   
@@ -66,9 +66,9 @@ class Image2Video():
     def download_model(self):
         REPO_ID = 'VideoCrafter/Image2Video-512-v1.0'
         filename_list = ['model.ckpt']
-        if not os.path.exists('./checkpoints/i2v_512_v1/'):
-            os.makedirs('./checkpoints/i2v_512_v1/')
+        if not os.path.exists('./videocrafter/checkpoints/i2v_512_v1/'):
+            os.makedirs('./videocrafter/checkpoints/i2v_512_v1/')
         for filename in filename_list:
-            local_file = os.path.join('./checkpoints/i2v_512_v1/', filename)
+            local_file = os.path.join('./videocrafter/checkpoints/i2v_512_v1/', filename)
             if not os.path.exists(local_file):
-                hf_hub_download(repo_id=REPO_ID, filename=filename, local_dir='./checkpoints/i2v_512_v1/', local_dir_use_symlinks=False)
+                hf_hub_download(repo_id=REPO_ID, filename=filename, local_dir='./videocrafter/checkpoints/i2v_512_v1/', local_dir_use_symlinks=False)
