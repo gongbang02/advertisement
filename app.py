@@ -23,6 +23,6 @@ gr.Interface(
     predict,
     inputs=[Textbox(lines=2, label="Describe your scene"), Textbox(lines=2, label="Describe your bgm"), Image(label="Upload your scribble", type="filepath")],
     outputs=Video(label="Advertisement Video", type="filepath"),
-    title="Advertisement Generator",
+    title="Ad Asset Generator",
     allow_flagging='never'
 ).launch(share=True)
