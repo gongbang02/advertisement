@@ -8,7 +8,8 @@ from audiocraft.demos.musicgen_app import predict_full
 
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)
-    videoPath = Image2Video.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
+    crafter = Image2Video()
+    videoPath = crafter.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
     video = cv2.VideoCapture(videoPath)
     vidDuration = video.get(cv2.CAP_PROP_POS_MSEC)
     video.release()
