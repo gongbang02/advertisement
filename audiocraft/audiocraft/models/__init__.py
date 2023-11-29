@@ -11,7 +11,6 @@ from . import builders, loaders
 from .encodec import (
     CompressionModel, EncodecModel, DAC,
     HFEncodecModel, HFEncodecCompressionModel)
-from .audiogen import AudioGen
 from .lm import LMModel
 from .multibanddiffusion import MultiBandDiffusion
 from .musicgen import MusicGen
