@@ -4,7 +4,7 @@ from gradio.components import Textbox, Image, Video
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
 from videocrafter.i2v_test import Image2Video
-from audiocraft.demos import predict_full
+from audiocraft.demos.musicgen_app import predict_full
 
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)
