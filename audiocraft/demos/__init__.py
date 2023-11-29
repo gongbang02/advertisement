@@ -1,0 +1,1 @@
+from musicgen_app import predict_full
