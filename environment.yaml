@@ -8,7 +8,7 @@ dependencies:
   - cudatoolkit=11.3
   - pip:
       - torch==2.0.0
-      - torchvision==0.13.1
+      - torchvision
       - gradio==3.16.2
       - albumentations==1.3.0
       - opencv-contrib-python
