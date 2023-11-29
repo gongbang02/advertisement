@@ -43,7 +43,7 @@ dependencies:
       - tqdm==4.65.0
       - moviepy
       - av
-      - xformers==0.0.13
+      - xformers==0.0.12
       - scikit-learn 
       - numpy==1.24.2
       - audiocraft
