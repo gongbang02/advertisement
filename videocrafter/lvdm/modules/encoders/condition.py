@@ -364,7 +364,7 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
         x = x + self.model.visual.positional_embedding.to(x.dtype)
 
         # a patch_dropout of 0. would mean it is disabled and this function would do nothing but return what was passed in
-        x = self.model.visual.patch_dropout(x)
+        #x = self.model.visual.patch_dropout(x)
         x = self.model.visual.ln_pre(x)
 
         x = x.permute(1, 0, 2)  # NLD -> LND
