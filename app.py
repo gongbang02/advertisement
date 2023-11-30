@@ -1,6 +1,6 @@
 import gradio as gr
 import cv2
-import PIL
+import os
 from gradio.components import Textbox, Image, Video
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
@@ -19,8 +19,8 @@ def predict(scribble_prompt, music_prompt, scribble):
     for i in range(len(imgs)):
         out.write(imgs[i])
     out.release()
-    crafter = Image2Video()
-    #videoPath = crafter.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
+    # crafter = Image2Video()
+    # videoPath = crafter.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
     # video = cv2.VideoCapture(videoPath)
     # vidDuration = video.get(cv2.CAP_PROP_POS_MSEC)
     # video.release()
@@ -29,12 +29,35 @@ def predict(scribble_prompt, music_prompt, scribble):
     # audio_clip = AudioFileClip(musicOut)
     # final_clip = video_clip.set_audio(audio_clip)
     # final_clip.write_videofile("./video_with_music.mp4", fps=26, threads=1, codec="libx264")
-    return './video_with_music.mp4'
+    return os.path.join('./', 'video_with_music.mp4')
 
-gr.Interface(
-    predict,
-    inputs=[Textbox(lines=2, label="Describe your scene"), Textbox(lines=2, label="Describe your bgm"), Image(label="Upload your scribble")],
-    outputs=Video(label="Advertisement Video", value='video_with_music.mp4'),
-    title="Ad Asset Generator",
-    allow_flagging='never'
-).launch(share=True)
+
+def demo(result_dir: str):
+    with gr.Blocks(analytics_enabled=False) as iface:
+        gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
+        with gr.Tab(label='Image2Video'):
+            with gr.Column():
+                with gr.Row():
+                    with gr.Column():
+                        with gr.Row():
+                            scribble = gr.Image(label="Upload your scribble")
+                        with gr.Row():
+                            scribble_prompt = gr.Text(label='Describe your scene')
+                        with gr.Row():
+                            music_prompt = gr.Text(label='Describe your bgm')
+                        i2v_end_btn = gr.Button("Submit")
+                    with gr.Tab(label='Result'):
+                        with gr.Row():
+                            output_video = gr.Video(label="Ad Video")
+            i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
+                            outputs=[output_video],
+                            fn = predict
+            )
+
+    return iface
+
+if __name__ == "__main__":
+    result_dir = os.path.join('./', 'results')
+    videocrafter_iface = demo(result_dir)
+    videocrafter_iface.queue(concurrency_count=1, max_size=10)
+    videocrafter_iface.launch()
