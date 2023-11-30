@@ -15,7 +15,7 @@ def predict(scribble_prompt, music_prompt, scribble):
         imgs.append(controlNetOut)
     height, width, _ = controlNetOut.shape
     size = (width,height)
-    out = cv2.VideoWriter('./video_with_music.mp4',cv2.VideoWriter_fourcc('M', 'P', '4', 'V'), 30, size)
+    out = cv2.VideoWriter('video_with_music.mp4',cv2.VideoWriter_fourcc(*'h264'), 30, size)
     for i in range(len(imgs)):
         out.write(imgs[i])
     out.release()
