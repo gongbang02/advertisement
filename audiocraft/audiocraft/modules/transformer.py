@@ -369,7 +369,7 @@ class StreamingMultiheadAttention(StreamingModule):
                     else:
                         bound_layout = "b t p h d"
                     packed = rearrange(projected, f"b t (p h d) -> {bound_layout}", p=3, h=self.num_heads)
-                    q, k, v = ops.unbind.unbind(packed, dim=2)
+                    q, k, v = ops.unbind(packed, dim=2)
                 else:
                     embed_dim = self.embed_dim
                     per_head_dim = (embed_dim // self.num_heads)
