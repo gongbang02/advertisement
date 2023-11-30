@@ -2,6 +2,7 @@ import gradio as gr
 import cv2
 import os
 from gradio.components import Textbox, Image, Video
+import moviepy.video.io.ImageSequenceClip
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
 from videocrafter.i2v_test import Image2Video
@@ -13,12 +14,8 @@ def predict(scribble_prompt, music_prompt, scribble):
     imgs = []
     for i in range(0, 300):
         imgs.append(controlNetOut)
-    height, width, _ = controlNetOut.shape
-    size = (width,height)
-    out = cv2.VideoWriter('video_with_music.m4v',cv2.VideoWriter_fourcc(*'mp4v'), 30, size)
-    for i in range(len(imgs)):
-        out.write(imgs[i])
-    out.release()
+    clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(imgs, fps=30)
+    clip.write_videofile('video_with_music.mp4')
     # crafter = Image2Video()
     # videoPath = crafter.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
     # video = cv2.VideoCapture(videoPath)
@@ -48,7 +45,7 @@ def demo():
                         i2v_end_btn = gr.Button("Submit")
                     with gr.Tab(label='Result'):
                         with gr.Row():
-                            output_video = gr.Video(label="Ad Video", format="m4v")
+                            output_video = gr.Video(label="Ad Video", format="mp4")
             i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
                             outputs=[output_video],
                             fn = predict
