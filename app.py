@@ -29,12 +29,12 @@ def predict(scribble_prompt, music_prompt, scribble):
     # audio_clip = AudioFileClip(musicOut)
     # final_clip = video_clip.set_audio(audio_clip)
     # final_clip.write_videofile("./video_with_music.mp4", fps=26, threads=1, codec="libx264")
-    return "./video_with_music.mp4"
+    return None
 
 gr.Interface(
     predict,
     inputs=[Textbox(lines=2, label="Describe your scene"), Textbox(lines=2, label="Describe your bgm"), Image(label="Upload your scribble")],
-    outputs=Video(label="Advertisement Video", type="filepath"),
+    outputs=Video(label="Advertisement Video", value="./video_with_music.mp4"),
     title="Ad Asset Generator",
     allow_flagging='never'
 ).launch(share=True)
