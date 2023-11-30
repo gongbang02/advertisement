@@ -32,7 +32,7 @@ def predict(scribble_prompt, music_prompt, scribble):
     return os.path.join('./', 'video_with_music.mp4')
 
 
-def demo(result_dir: str):
+def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
         gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
         with gr.Tab(label='Image2Video'):
@@ -57,7 +57,6 @@ def demo(result_dir: str):
     return iface
 
 if __name__ == "__main__":
-    result_dir = os.path.join('./', 'results')
-    videocrafter_iface = demo(result_dir)
-    videocrafter_iface.queue(concurrency_count=1, max_size=10)
-    videocrafter_iface.launch(share=True)
+    iface = demo()
+    iface.queue(concurrency_count=1, max_size=10)
+    iface.launch(share=True)
