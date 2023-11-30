@@ -15,7 +15,7 @@ def predict(scribble_prompt, music_prompt, scribble):
         imgs.append(controlNetOut)
     height, width, _ = controlNetOut.shape
     size = (width,height)
-    out = cv2.VideoWriter('video_with_music.mp4',cv2.VideoWriter_fourcc(*'h264'), 30, size)
+    out = cv2.VideoWriter('video_with_music.mp4',cv2.VideoWriter_fourcc(*'avc1'), 30, size)
     for i in range(len(imgs)):
         out.write(imgs[i])
     out.release()
@@ -48,7 +48,7 @@ def demo():
                         i2v_end_btn = gr.Button("Submit")
                     with gr.Tab(label='Result'):
                         with gr.Row():
-                            output_video = gr.Video(label="Ad Video")
+                            output_video = gr.Video(label="Ad Video", format="mp4")
             i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
                             outputs=[output_video],
                             fn = predict
