@@ -351,7 +351,7 @@ class MusicGen:
             # generate by sampling from LM, simple case.
             with self.autocast:
                 gen_tokens = self.lm.generate(
-                    prompt_tokens, attributes,
+                    None, attributes,
                     callback=callback, max_gen_len=total_gen_len, **self.generation_params)
 
         else:
