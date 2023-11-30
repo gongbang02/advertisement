@@ -34,7 +34,7 @@ def predict(scribble_prompt, music_prompt, scribble):
 gr.Interface(
     predict,
     inputs=[Textbox(lines=2, label="Describe your scene"), Textbox(lines=2, label="Describe your bgm"), Image(label="Upload your scribble")],
-    outputs=Video(label="Advertisement Video", value="./video_with_music.mp4"),
+    outputs=Video(label="Advertisement Video"),
     title="Ad Asset Generator",
     allow_flagging='never'
 ).launch(share=True)
