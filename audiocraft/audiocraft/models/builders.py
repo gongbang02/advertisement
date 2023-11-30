@@ -11,7 +11,7 @@ from the Hydra config.
 
 import typing as tp
 
-import audiocraft
+import audiocraft.audiocraft
 import omegaconf
 import torch
 
