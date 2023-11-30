@@ -29,7 +29,7 @@ def predict(scribble_prompt, music_prompt, scribble):
     # audio_clip = AudioFileClip(musicOut)
     # final_clip = video_clip.set_audio(audio_clip)
     # final_clip.write_videofile("./video_with_music.mp4", fps=26, threads=1, codec="libx264")
-    return None
+    return './video_with_music.mp4'
 
 gr.Interface(
     predict,
