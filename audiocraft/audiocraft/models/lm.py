@@ -460,6 +460,8 @@ class LMModel(StreamingModule):
             assert num_samples > 0
             prompt = torch.zeros((num_samples, self.num_codebooks, 0), dtype=torch.long, device=device)
 
+        print(prompt)
+        print(prompt.shape)
         B, K, T = prompt.shape
         start_offset = T
         assert start_offset < max_gen_len
