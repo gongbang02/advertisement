@@ -19,9 +19,8 @@ def predict(scribble_prompt, music_prompt, scribble):
     clip.write_videofile(videoPath)
     # crafter = Image2Video()
     # videoPath = crafter.get_image(image=controlNetOut, prompt=scribble_prompt, steps=30, cfg_scale=12.0, eta=1.0, fps=16)
-    video = cv2.VideoCapture(videoPath)
-    vidDuration = video.get(cv2.CAP_PROP_POS_MSEC)
-    video.release()
+    clip = VideoFileClip(videoPath)
+    vidDuration = clip.duration
     musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
     video_clip = VideoFileClip(videoPath)
     audio_clip = AudioFileClip(musicOut)
