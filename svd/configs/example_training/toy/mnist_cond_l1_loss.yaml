@@ -1,17 +1,17 @@
 model:
   base_learning_rate: 1.0e-4
-  target: sgm.models.diffusion.DiffusionEngine
+  target: svd.sgm.models.diffusion.DiffusionEngine
   params:
     denoiser_config:
-      target: sgm.modules.diffusionmodules.denoiser.Denoiser
+      target: svd.sgm.modules.diffusionmodules.denoiser.Denoiser
       params:
         scaling_config:
-          target: sgm.modules.diffusionmodules.denoiser_scaling.EDMScaling
+          target: svd.sgm.modules.diffusionmodules.denoiser_scaling.EDMScaling
           params:
             sigma_data: 1.0
 
     network_config:
-      target: sgm.modules.diffusionmodules.openaimodel.UNetModel
+      target: svd.sgm.modules.diffusionmodules.openaimodel.UNetModel
       params:
         in_channels: 1
         out_channels: 1
@@ -24,46 +24,46 @@ model:
         adm_in_channels: 128
 
     conditioner_config:
-      target: sgm.modules.GeneralConditioner
+      target: svd.sgm.modules.GeneralConditioner
       params:
         emb_models:
           - is_trainable: True
             input_key: cls
             ucg_rate: 0.2
-            target: sgm.modules.encoders.modules.ClassEmbedder
+            target: svd.sgm.modules.encoders.modules.ClassEmbedder
             params:
               embed_dim: 128
               n_classes: 10
 
     first_stage_config:
-      target: sgm.models.autoencoder.IdentityFirstStage
+      target: svd.sgm.models.autoencoder.IdentityFirstStage
 
     loss_fn_config:
-      target: sgm.modules.diffusionmodules.loss.StandardDiffusionLoss
+      target: svd.sgm.modules.diffusionmodules.loss.StandardDiffusionLoss
       params:
         loss_type: l1
         loss_weighting_config:
-          target: sgm.modules.diffusionmodules.loss_weighting.EDMWeighting
+          target: svd.sgm.modules.diffusionmodules.loss_weighting.EDMWeighting
           params:
             sigma_data: 1.0
         sigma_sampler_config:
-          target: sgm.modules.diffusionmodules.sigma_sampling.EDMSampling
+          target: svd.sgm.modules.diffusionmodules.sigma_sampling.EDMSampling
 
     sampler_config:
-      target: sgm.modules.diffusionmodules.sampling.EulerEDMSampler
+      target: svd.sgm.modules.diffusionmodules.sampling.EulerEDMSampler
       params:
         num_steps: 50
 
         discretization_config:
-          target: sgm.modules.diffusionmodules.discretizer.EDMDiscretization
+          target: svd.sgm.modules.diffusionmodules.discretizer.EDMDiscretization
 
         guider_config:
-          target: sgm.modules.diffusionmodules.guiders.VanillaCFG
+          target: svd.sgm.modules.diffusionmodules.guiders.VanillaCFG
           params:
             scale: 3.0
 
 data:
-  target: sgm.data.mnist.MNISTLoader
+  target: svd.sgm.data.mnist.MNISTLoader
   params:
     batch_size: 512
     num_workers: 1

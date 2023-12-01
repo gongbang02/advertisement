@@ -12,7 +12,7 @@ from svd.sgm.inference.api import (
     Sampler,
     ModelArchitecture,
 )
-import sgm.inference.helpers as helpers
+import svd.sgminference.helpers as helpers
 
 
 @pytest.mark.inference
