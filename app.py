@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 from diffusers import StableVideoDiffusionPipeline
 from diffusers.utils import load_image, export_to_video
-from PIL import Image
+import PIL.Image
 import uuid
 import random
 from huggingface_hub import hf_hub_download
@@ -66,7 +66,7 @@ def resize_image(image, output_size=(1024, 576)):
         # Resize the image to match the target height, maintaining aspect ratio
         new_height = output_size[1]
         new_width = int(new_height * image_aspect)
-        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+        resized_image = image.resize((new_width, new_height), PIL.Image.LANCZOS)
         # Calculate coordinates for cropping
         left = (new_width - output_size[0]) / 2
         top = 0
@@ -76,7 +76,7 @@ def resize_image(image, output_size=(1024, 576)):
         # Resize the image to match the target width, maintaining aspect ratio
         new_width = output_size[0]
         new_height = int(new_width / image_aspect)
-        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+        resized_image = image.resize((new_width, new_height), PIL.Image.LANCZOS)
         # Calculate coordinates for cropping
         left = 0
         top = (new_height - output_size[1]) / 2
