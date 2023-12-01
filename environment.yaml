@@ -35,16 +35,10 @@ dependencies:
       - fvcore
       - pycocotools
       - wandb
-      - decord==0.6.0
-      - pandas==2.0.0
-      - Pillow==9.5.0
-      - PyYAML==6.0
-      - setuptools==65.6.3
       - tqdm==4.65.0
       - moviepy
       - av
       - xformers
-      - scikit-learn 
       - numpy==1.24.2
       - audiocraft
       - flashy>=0.0.1
@@ -61,3 +55,7 @@ dependencies:
       - encodec
       - protobuf
       - ffmpeg
+      - https://gradio-builds.s3.amazonaws.com/756e3431d65172df986a7e335dce8136206a293a/gradio-4.7.1-py3-none-any.whl
+      - git+https://github.com/huggingface/diffusers.git@refs/pull/5895/head
+      - uuid
+      - accelerate
