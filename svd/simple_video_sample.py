@@ -15,8 +15,8 @@ from torchvision.transforms import ToTensor
 
 from scripts.util.detection.nsfw_and_watermark_dectection import \
     DeepFloydDataFiltering
-from sgm.inference.helpers import embed_watermark
-from sgm.util import default, instantiate_from_config
+from svd.sgm.inference.helpers import embed_watermark
+from svd.sgm.util import default, instantiate_from_config
 
 
 def sample(
