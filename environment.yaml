@@ -56,6 +56,6 @@ dependencies:
       - protobuf
       - ffmpeg
       - gradio
-      - diffusers
+      - diffusers==0.23.1
       - uuid
       - accelerate
