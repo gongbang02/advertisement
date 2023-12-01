@@ -75,6 +75,6 @@ dependencies:
       - tensorboardx==2.6
       - tokenizers==0.12.1
       - torchdata==0.6.1
-      - triton==2.0.0
+      - triton
       - urllib3<1.27,>=1.25.4
       - wheel>=0.41.0
