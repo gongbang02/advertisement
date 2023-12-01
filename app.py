@@ -323,7 +323,7 @@ def demo():
                     with gr.Column():
                         with gr.Row():
                             image = gr.Image(label="Upload your image", type="pil")
-                            generate_btn = gr.Button("Generate")
+                        generate_btn = gr.Button("Generate")
                         image.upload(fn=resize_image, inputs=image, outputs=image, queue=False)
                         with gr.Accordion("Advanced options", open=False):
                             seed = gr.Slider(label="Seed", value=42, randomize=True, minimum=0, maximum=max_64_bit_int, step=1)
