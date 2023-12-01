@@ -184,7 +184,6 @@ def sample(
                 .numpy()
                 .astype(np.uint8)
             )
-            print(type(vid[0]))
             clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
             clip.write_videofile(video_path)
     return video_path, seed
@@ -270,16 +269,17 @@ def predict(scribble_prompt, music_prompt, scribble):
     imgs = []
     for i in range(0, 300):
         imgs.append(controlNetOut)
+    print(type(imgs[0]))
     clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(imgs, fps=30)
     videoPath = 'video_with_music.mp4'
     clip.write_videofile(videoPath)
-    clip = VideoFileClip(videoPath)
-    vidDuration = clip.duration
-    musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
-    video_clip = VideoFileClip(videoPath)
-    audio_clip = AudioFileClip(musicOut)
-    final_clip = video_clip.set_audio(audio_clip)
-    final_clip.write_videofile("video_with_music.mp4", fps=30, threads=1, codec="libx264")
+    # clip = VideoFileClip(videoPath)
+    # vidDuration = clip.duration
+    # musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
+    # video_clip = VideoFileClip(videoPath)
+    # audio_clip = AudioFileClip(musicOut)
+    # final_clip = video_clip.set_audio(audio_clip)
+    # final_clip.write_videofile("video_with_music.mp4", fps=30, threads=1, codec="libx264")
     return os.path.join('./', 'video_with_music.mp4')
 
 
