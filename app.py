@@ -174,6 +174,7 @@ def sample(
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
 
             os.makedirs(output_folder, exist_ok=True)
+            print(output_folder)
             base_count = len(glob(os.path.join(output_folder, "*.mp4")))
             video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
             writer = cv2.VideoWriter(
@@ -195,6 +196,7 @@ def sample(
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 writer.write(frame)
             writer.release()
+            print(video_path)
     return video_path, seed
 
 def get_unique_embedder_keys_from_conditioner(conditioner):
@@ -322,7 +324,7 @@ def demo():
                 with gr.Column():
                     image = gr.Image(label="Upload your image", type="pil")
                     generate_btn = gr.Button("Generate")
-                video = gr.Video()
+                video = gr.Video(type="filepath")
             with gr.Accordion("Advanced options", open=False):
                 seed = gr.Slider(label="Seed", value=42, randomize=True, minimum=0, maximum=max_64_bit_int, step=1)
                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
