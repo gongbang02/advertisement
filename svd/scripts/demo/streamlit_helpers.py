@@ -19,9 +19,9 @@ from torch import autocast
 from torchvision import transforms
 from torchvision.utils import make_grid, save_image
 
-from scripts.demo.discretization import (Img2ImgDiscretizationWrapper,
+from svd.scripts.demo.discretization import (Img2ImgDiscretizationWrapper,
                                          Txt2NoisyDiscretizationWrapper)
-from scripts.util.detection.nsfw_and_watermark_dectection import \
+from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
     DeepFloydDataFiltering
 from svd.sgm.inference.helpers import embed_watermark
 from svd.sgm.modules.diffusionmodules.guiders import (LinearPredictionGuider,

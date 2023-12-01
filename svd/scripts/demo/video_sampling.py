@@ -2,7 +2,7 @@ import os
 
 from pytorch_lightning import seed_everything
 
-from scripts.demo.streamlit_helpers import *
+from svd.scripts.demo.streamlit_helpers import *
 
 SAVE_PATH = "outputs/demo/vid/"
 

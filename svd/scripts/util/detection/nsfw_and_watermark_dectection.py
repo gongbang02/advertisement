@@ -6,7 +6,7 @@ import torch
 import torchvision.transforms as T
 from PIL import Image
 
-RESOURCES_ROOT = "scripts/util/detection/"
+RESOURCES_ROOT = "svd/scripts/util/detection/"
 
 
 def predict_proba(X, weights, biases):
