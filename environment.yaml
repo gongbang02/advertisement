@@ -47,7 +47,7 @@ dependencies:
       - julius
       - num2words
       - sentencepiece
-      - spacy==3.5.2
+      - spacy
       - torchaudio>=2.0.0
       - huggingface_hub
       - demucs
