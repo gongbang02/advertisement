@@ -174,8 +174,8 @@ def sample(
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
 
             os.makedirs(output_folder, exist_ok=True)
-            base_count = len(glob(os.path.join(output_folder, "*.m4v")))
-            video_path = os.path.join(output_folder, f"{base_count:06d}.m4v")
+            base_count = len(glob(os.path.join(output_folder, "*.mp4")))
+            video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
             writer = cv2.VideoWriter(
                 video_path,
                 cv2.VideoWriter_fourcc(*"mp4v"),
@@ -322,7 +322,7 @@ def demo():
                 with gr.Column():
                     image = gr.Image(label="Upload your image", type="pil")
                     generate_btn = gr.Button("Generate")
-                video = gr.Video(format="m4v")
+                video = gr.Video(format="mp4")
             with gr.Accordion("Advanced options", open=False):
                 seed = gr.Slider(label="Seed", value=42, randomize=True, minimum=0, maximum=max_64_bit_int, step=1)
                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
