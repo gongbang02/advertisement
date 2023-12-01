@@ -322,15 +322,16 @@ def demo():
                 with gr.Column():
                     image = gr.Image(label="Upload your image", type="pil")
                     generate_btn = gr.Button("Generate")
-                video = gr.Video(format="mp4")
+                image.upload(fn=resize_image, inputs=image, outputs=image, queue=False)
             with gr.Accordion("Advanced options", open=False):
                 seed = gr.Slider(label="Seed", value=42, randomize=True, minimum=0, maximum=max_64_bit_int, step=1)
                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
                 motion_bucket_id = gr.Slider(label="Motion bucket id", info="Controls how much motion to add/remove from the image", value=127, minimum=1, maximum=255)
                 fps_id = gr.Slider(label="Frames per second", info="The length of your video in seconds will be 25/fps", value=6, minimum=5, maximum=30)
-      
-            image.upload(fn=resize_image, inputs=image, outputs=image, queue=False)
-            generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[video, seed], api_name="video")
+            with gr.Tab(label='Result'):
+                with gr.Row():
+                    output_video = gr.Video(label="Ad Video", format="mp4")
+            generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[output_video, seed], api_name="video")
 
     return iface
 
