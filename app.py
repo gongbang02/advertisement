@@ -197,7 +197,7 @@ def sample(
                 writer.write(frame)
             writer.release()
             print(video_path)
-    return video_path, seed
+    return os.path.join('./', video_path), seed
 
 def get_unique_embedder_keys_from_conditioner(conditioner):
     return list(set([x.input_key for x in conditioner.embedders]))
