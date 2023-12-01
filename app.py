@@ -184,6 +184,8 @@ def sample(
                 .numpy()
                 .astype(np.uint8)
             )
+            for f in os.listdir(vid):
+                print(f)
             clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
             clip.write_videofile(video_path)
     return video_path, seed
