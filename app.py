@@ -11,11 +11,10 @@ from einops import rearrange, repeat
 from fire import Fire
 from omegaconf import OmegaConf
 from torchvision.transforms import ToTensor
-import PIL.Image
+from PIL import Image
 import uuid
 import random
 from huggingface_hub import hf_hub_download
-from gradio.components import Textbox, Image, Video
 import moviepy.video.io.ImageSequenceClip
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
@@ -251,7 +250,7 @@ def resize_image(image, output_size=(1024, 576)):
         # Resize the image to match the target height, maintaining aspect ratio
         new_height = output_size[1]
         new_width = int(new_height * image_aspect)
-        resized_image = image.resize((new_width, new_height), PIL.Image.LANCZOS)
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
         # Calculate coordinates for cropping
         left = (new_width - output_size[0]) / 2
         top = 0
@@ -261,7 +260,7 @@ def resize_image(image, output_size=(1024, 576)):
         # Resize the image to match the target width, maintaining aspect ratio
         new_width = output_size[0]
         new_height = int(new_width / image_aspect)
-        resized_image = image.resize((new_width, new_height), PIL.Image.LANCZOS)
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
         # Calculate coordinates for cropping
         left = 0
         top = (new_height - output_size[1]) / 2
@@ -275,7 +274,7 @@ def resize_image(image, output_size=(1024, 576)):
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
     # repeat controlNetOut to create a 10-second video
-    videoPath, _ = sample(image=controlNetOut, seed=12345, randomize_seed=True, motion_bucket_id=127, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
+    videoPath, _ = sample(image=resize_image(controlNetOut), seed=12345, randomize_seed=True, motion_bucket_id=127, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
     # vidDuration = clip.duration
     # musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
     # video_clip = VideoFileClip(videoPath)
