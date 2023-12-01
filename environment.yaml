@@ -14,7 +14,7 @@ dependencies:
       - opencv-contrib-python
       - imageio==2.9.0
       - imageio-ffmpeg==0.4.2
-      - pytorch-lightning==2.0.1
+      - pytorch-lightning
       - omegaconf==2.3.0
       - test-tube>=0.7.5
       - streamlit==1.12.1
