@@ -280,7 +280,7 @@ class SamplingPipeline:
 def get_guider_config(params: SamplingParams):
     if params.guider == Guider.IDENTITY:
         guider_config = {
-            "target": "sgm.modules.diffusionmodules.guiders.IdentityGuider"
+            "target": "svd.sgm.modules.diffusionmodules.guiders.IdentityGuider"
         }
     elif params.guider == Guider.VANILLA:
         scale = params.scale
@@ -289,13 +289,13 @@ def get_guider_config(params: SamplingParams):
 
         if thresholder == Thresholder.NONE:
             dyn_thresh_config = {
-                "target": "sgm.modules.diffusionmodules.sampling_utils.NoDynamicThresholding"
+                "target": "svd.sgm.modules.diffusionmodules.sampling_utils.NoDynamicThresholding"
             }
         else:
             raise NotImplementedError
 
         guider_config = {
-            "target": "sgm.modules.diffusionmodules.guiders.VanillaCFG",
+            "target": "svd.sgm.modules.diffusionmodules.guiders.VanillaCFG",
             "params": {"scale": scale, "dyn_thresh_config": dyn_thresh_config},
         }
     else:
@@ -306,11 +306,11 @@ def get_guider_config(params: SamplingParams):
 def get_discretization_config(params: SamplingParams):
     if params.discretization == Discretization.LEGACY_DDPM:
         discretization_config = {
-            "target": "sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization",
+            "target": "svd.sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization",
         }
     elif params.discretization == Discretization.EDM:
         discretization_config = {
-            "target": "sgm.modules.diffusionmodules.discretizer.EDMDiscretization",
+            "target": "svd.sgm.modules.diffusionmodules.discretizer.EDMDiscretization",
             "params": {
                 "sigma_min": params.sigma_min,
                 "sigma_max": params.sigma_max,

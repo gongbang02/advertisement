@@ -14,7 +14,7 @@ requires-python = ">=3.8"
 Homepage = "https://github.com/Stability-AI/generative-models"
 
 [tool.hatch.version]
-path = "sgm/__init__.py"
+path = "svd/sgm/__init__.py"
 
 [tool.hatch.build]
 # This needs to be explicitly set so the configuration files
@@ -28,10 +28,10 @@ include = [
 # to generatively model) into the source distribution and the wheel.
 
 [tool.hatch.build.targets.sdist.force-include]
-"./configs" = "sgm/configs"
+"./configs" = "svd/sgm/configs"
 
 [tool.hatch.build.targets.wheel.force-include]
-"./configs" = "sgm/configs"
+"./configs" = "svd/sgm/configs"
 
 [tool.hatch.envs.ci]
 skip-install = false

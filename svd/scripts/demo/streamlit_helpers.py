@@ -230,7 +230,7 @@ def get_guider(options, key):
 
     if guider == "IdentityGuider":
         guider_config = {
-            "target": "sgm.modules.diffusionmodules.guiders.IdentityGuider"
+            "target": "svd.sgm.modules.diffusionmodules.guiders.IdentityGuider"
         }
     elif guider == "VanillaCFG":
         scale_schedule = st.sidebar.selectbox(
@@ -246,7 +246,7 @@ def get_guider(options, key):
             )
 
             scale_schedule_config = {
-                "target": "sgm.modules.diffusionmodules.guiders.IdentitySchedule",
+                "target": "svd.sgm.modules.diffusionmodules.guiders.IdentitySchedule",
                 "params": {"scale": scale},
             }
 
@@ -270,7 +270,7 @@ def get_guider(options, key):
             )
 
             scale_schedule_config = {
-                "target": "sgm.modules.diffusionmodules.guiders.OscillatingSchedule",
+                "target": "svd.sgm.modules.diffusionmodules.guiders.OscillatingSchedule",
                 "params": {
                     "small_scale": small_scale,
                     "large_scale": large_scale,
@@ -281,7 +281,7 @@ def get_guider(options, key):
             raise NotImplementedError
 
         guider_config = {
-            "target": "sgm.modules.diffusionmodules.guiders.VanillaCFG",
+            "target": "svd.sgm.modules.diffusionmodules.guiders.VanillaCFG",
             "params": {
                 "scale_schedule_config": scale_schedule_config,
                 **additional_guider_kwargs,
@@ -301,7 +301,7 @@ def get_guider(options, key):
         )
 
         guider_config = {
-            "target": "sgm.modules.diffusionmodules.guiders.LinearPredictionGuider",
+            "target": "svd.sgm.modules.diffusionmodules.guiders.LinearPredictionGuider",
             "params": {
                 "max_scale": max_scale,
                 "min_scale": min_scale,
@@ -375,7 +375,7 @@ def init_sampling(
 def get_discretization(discretization, options, key=1):
     if discretization == "LegacyDDPMDiscretization":
         discretization_config = {
-            "target": "sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization",
+            "target": "svd.sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization",
         }
     elif discretization == "EDMDiscretization":
         sigma_min = st.number_input(
@@ -386,7 +386,7 @@ def get_discretization(discretization, options, key=1):
         )  # 14.6146
         rho = st.number_input(f"rho #{key}", value=options.get("rho", 3.0))
         discretization_config = {
-            "target": "sgm.modules.diffusionmodules.discretizer.EDMDiscretization",
+            "target": "svd.sgm.modules.diffusionmodules.discretizer.EDMDiscretization",
             "params": {
                 "sigma_min": sigma_min,
                 "sigma_max": sigma_max,
