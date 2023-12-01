@@ -275,20 +275,14 @@ def resize_image(image, output_size=(1024, 576)):
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
     # repeat controlNetOut to create a 10-second video
-    imgs = []
-    for i in range(0, 300):
-        imgs.append(controlNetOut)
-    clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(imgs, fps=30)
-    videoPath = 'video_with_music.mp4'
-    clip.write_videofile(videoPath)
-    # clip = VideoFileClip(videoPath)
+    videoPath, _ = sample(image=controlNetOut, seed=12345, randomize_seed=True, motion_bucket_id=127, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
     # vidDuration = clip.duration
     # musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
     # video_clip = VideoFileClip(videoPath)
     # audio_clip = AudioFileClip(musicOut)
     # final_clip = video_clip.set_audio(audio_clip)
     # final_clip.write_videofile("video_with_music.mp4", fps=30, threads=1, codec="libx264")
-    return os.path.join('./', 'video_with_music.mp4')
+    return videoPath
 
 
 def demo():
