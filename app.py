@@ -184,8 +184,6 @@ def sample(
                 .numpy()
                 .astype(np.uint8)
             )
-            for frame in vid:
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
             clip.write_videofile(video_path)
     return video_path, seed
