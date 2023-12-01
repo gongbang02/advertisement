@@ -174,12 +174,11 @@ def sample(
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
 
             os.makedirs(output_folder, exist_ok=True)
-            print(output_folder)
             base_count = len(glob(os.path.join(output_folder, "*.mp4")))
             video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
             writer = cv2.VideoWriter(
                 video_path,
-                cv2.VideoWriter_fourcc(*"mp4v"),
+                0x00000021,
                 fps_id + 1,
                 (samples.shape[-1], samples.shape[-2]),
             )
@@ -197,7 +196,7 @@ def sample(
                 writer.write(frame)
             writer.release()
             print(video_path)
-    return os.path.join('./', video_path), seed
+    return video_path, seed
 
 def get_unique_embedder_keys_from_conditioner(conditioner):
     return list(set([x.input_key for x in conditioner.embedders]))
