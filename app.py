@@ -81,7 +81,7 @@ def sample(
     cond_aug: float = 0.02,
     decoding_t: int = 5,  # Number of frames decoded at a time! This eats most VRAM. Reduce if necessary.
     device: str = "cuda",
-    output_folder: str = "./",
+    output_folder: str = "output",
     progress=gr.Progress(track_tqdm=True)
 ):
     if(randomize_seed):
@@ -173,9 +173,16 @@ def sample(
             samples_x = model.decode_first_stage(samples_z)
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
 
-            #os.makedirs(output_folder, exist_ok=True)
-            #base_count = len(glob(os.path.join(output_folder, "*.mp4")))
-            video_path = os.path.join(output_folder, "svd_out.mp4")
+            os.makedirs(output_folder, exist_ok=True)
+            base_count = len(glob(os.path.join(output_folder, "*.avi")))
+            video_path = os.path.join(output_folder, f"{base_count:06d}.avi")
+            writer = cv2.VideoWriter(
+                video_path,
+                cv2.VideoWriter_fourcc(*"XVID"),
+                fps_id + 1,
+                (samples.shape[-1], samples.shape[-2]),
+            )
+
             samples = embed_watermark(samples)
             samples = filter(samples)
             vid = (
@@ -184,8 +191,10 @@ def sample(
                 .numpy()
                 .astype(np.uint8)
             )
-            clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
-            clip.write_videofile(video_path)
+            for frame in vid:
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                writer.write(frame)
+            writer.release()
     return video_path, seed
 
 def get_unique_embedder_keys_from_conditioner(conditioner):
@@ -313,7 +322,7 @@ def demo():
                 with gr.Column():
                     image = gr.Image(label="Upload your image", type="pil")
                     generate_btn = gr.Button("Generate")
-                video = gr.Video(type="filepath")
+                video = gr.Video(format="avi")
             with gr.Accordion("Advanced options", open=False):
                 seed = gr.Slider(label="Seed", value=42, randomize=True, minimum=0, maximum=max_64_bit_int, step=1)
                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
