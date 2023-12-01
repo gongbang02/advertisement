@@ -177,6 +177,7 @@ def sample(
             base_count = len(glob(os.path.join(output_folder, "*.mp4")))
             video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
             samples = embed_watermark(samples)
+            print(type(samples[0]))
             samples = filter(samples)
             vid = (
                 (rearrange(samples, "t c h w -> t h w c") * 255)
@@ -269,7 +270,6 @@ def predict(scribble_prompt, music_prompt, scribble):
     imgs = []
     for i in range(0, 300):
         imgs.append(controlNetOut)
-    print(type(imgs[0]))
     clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(imgs, fps=30)
     videoPath = 'video_with_music.mp4'
     clip.write_videofile(videoPath)
