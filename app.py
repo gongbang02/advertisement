@@ -273,7 +273,7 @@ def resize_image(image, output_size=(1024, 576)):
 
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
-    # repeat controlNetOut to create a 10-second video
+    controlNetOut = Image.fromarray(controlNetOut, 'RGB')
     videoPath, _ = sample(image=resize_image(controlNetOut), seed=12345, randomize_seed=True, motion_bucket_id=127, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
     # vidDuration = clip.duration
     # musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
