@@ -13,7 +13,7 @@ from omegaconf import OmegaConf
 from PIL import Image
 from torchvision.transforms import ToTensor
 
-from scripts.util.detection.nsfw_and_watermark_dectection import \
+from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
     DeepFloydDataFiltering
 from svd.sgm.inference.helpers import embed_watermark
 from svd.sgm.util import default, instantiate_from_config
@@ -41,26 +41,26 @@ def sample(
         num_frames = default(num_frames, 14)
         num_steps = default(num_steps, 25)
         output_folder = default(output_folder, "outputs/simple_video_sample/svd/")
-        model_config = "scripts/sampling/configs/svd.yaml"
+        model_config = "svd/scripts/sampling/configs/svd.yaml"
     elif version == "svd_xt":
         num_frames = default(num_frames, 25)
         num_steps = default(num_steps, 30)
         output_folder = default(output_folder, "outputs/simple_video_sample/svd_xt/")
-        model_config = "scripts/sampling/configs/svd_xt.yaml"
+        model_config = "svd/scripts/sampling/configs/svd_xt.yaml"
     elif version == "svd_image_decoder":
         num_frames = default(num_frames, 14)
         num_steps = default(num_steps, 25)
         output_folder = default(
             output_folder, "outputs/simple_video_sample/svd_image_decoder/"
         )
-        model_config = "scripts/sampling/configs/svd_image_decoder.yaml"
+        model_config = "svd/scripts/sampling/configs/svd_image_decoder.yaml"
     elif version == "svd_xt_image_decoder":
         num_frames = default(num_frames, 25)
         num_steps = default(num_steps, 30)
         output_folder = default(
             output_folder, "outputs/simple_video_sample/svd_xt_image_decoder/"
         )
-        model_config = "scripts/sampling/configs/svd_xt_image_decoder.yaml"
+        model_config = "svd/scripts/sampling/configs/svd_xt_image_decoder.yaml"
     else:
         raise ValueError(f"Version {version} does not exist.")
 
