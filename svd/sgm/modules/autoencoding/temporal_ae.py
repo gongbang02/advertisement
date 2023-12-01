@@ -3,7 +3,7 @@ from typing import Callable, Iterable, Union
 import torch
 from einops import rearrange, repeat
 
-from sgm.modules.diffusionmodules.model import (
+from svd.sgm.modules.diffusionmodules.model import (
     XFORMERS_IS_AVAILABLE,
     AttnBlock,
     Decoder,
