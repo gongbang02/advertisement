@@ -176,13 +176,6 @@ def sample(
             os.makedirs(output_folder, exist_ok=True)
             base_count = len(glob(os.path.join(output_folder, "*.mp4")))
             video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
-            writer = cv2.VideoWriter(
-                video_path,
-                0x00000021,
-                fps_id + 1,
-                (samples.shape[-1], samples.shape[-2]),
-            )
-
             samples = embed_watermark(samples)
             samples = filter(samples)
             vid = (
@@ -193,9 +186,8 @@ def sample(
             )
             for frame in vid:
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                writer.write(frame)
-            writer.release()
-            print(video_path)
+            clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
+            clip.write_videofile(video_path)
     return video_path, seed
 
 def get_unique_embedder_keys_from_conditioner(conditioner):
