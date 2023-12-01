@@ -15,7 +15,6 @@ from gradio.components import Textbox, Image, Video
 import moviepy.video.io.ImageSequenceClip
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
-from videocrafter.i2v_test import Image2Video
 from audiocraft.demos.musicgen_app import predict_full
 
 
