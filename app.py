@@ -144,12 +144,6 @@ def demo():
       
             image.upload(fn=resize_image, inputs=image, outputs=image, queue=False)
             generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[video, seed], api_name="video")
-            gr.Examples(
-                inputs=image,
-                outputs=[video, seed],
-                fn=sample,
-                cache_examples=True,
-             )
 
     return iface
 
