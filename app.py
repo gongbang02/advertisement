@@ -81,7 +81,7 @@ def sample(
     cond_aug: float = 0.02,
     decoding_t: int = 5,  # Number of frames decoded at a time! This eats most VRAM. Reduce if necessary.
     device: str = "cuda",
-    output_folder: str = "outputs",
+    output_folder: str = "./",
     progress=gr.Progress(track_tqdm=True)
 ):
     if(randomize_seed):
@@ -173,16 +173,16 @@ def sample(
             samples_x = model.decode_first_stage(samples_z)
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
 
-            os.makedirs(output_folder, exist_ok=True)
-            base_count = len(glob(os.path.join(output_folder, "*.mp4")))
-            video_path = os.path.join(output_folder, f"{base_count:06d}.mp4")
+            #os.makedirs(output_folder, exist_ok=True)
+            #base_count = len(glob(os.path.join(output_folder, "*.mp4")))
+            video_path = os.path.join(output_folder, "svd_out.mp4")
             samples = embed_watermark(samples)
             samples = filter(samples)
             vid = (
                 (rearrange(samples, "t c h w -> t h w c") * 255)
                 .cpu()
                 .numpy()
-                #.astype(np.uint8)
+                .astype(np.uint8)
             )
             clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(vid, fps=6)
             clip.write_videofile(video_path)
