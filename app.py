@@ -15,7 +15,6 @@ from PIL import Image
 import uuid
 import random
 from huggingface_hub import hf_hub_download
-import moviepy.video.io.ImageSequenceClip
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
 from audiocraft.demos.musicgen_app import predict_full
@@ -271,6 +270,12 @@ def resize_image(image, output_size=(1024, 576)):
     cropped_image = resized_image.crop((left, top, right, bottom))
     return cropped_image
 
+def toggle_audio_src(choice):
+    if choice == "mic":
+        return gr.update(source="microphone", value=None, label="Microphone")
+    else:
+        return gr.update(source="upload", value=None, label="File")
+
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
     controlNetOut = Image.fromarray(controlNetOut, 'RGB')
@@ -286,7 +291,7 @@ def predict(scribble_prompt, music_prompt, scribble):
 def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
         gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
-        # Scratch2Video with ControlNet, MusicGen
+        # Scratch2Video： ControlNet, Stable Video Diffusion, MusicGen
         with gr.Tab(label='Scratch2Video'):
             with gr.Column():
                 with gr.Row():
@@ -305,11 +310,8 @@ def demo():
                             outputs=[output_video],
                             fn = predict
             )
-        # Image2Video with Stable Video Diffusion
+        # Image2Video: Stable Video Diffusion
         with gr.Tab(label='Image2Video'):
-            gr.Markdown('''# Community demo for Stable Video Diffusion - Img2Vid - XT ([model](https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt), [paper](https://stability.ai/research/stable-video-diffusion-scaling-latent-video-diffusion-models-to-large-datasets), [stability's ui waitlist](https://stability.ai/contact))
-#### Research release ([_non-commercial_](https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt/blob/main/LICENSE)): generate `4s` vid from a single image at (`25 frames` at `6 fps`). this demo uses [🧨 diffusers for low VRAM and fast generation](https://huggingface.co/docs/diffusers/main/en/using-diffusers/svd).
-  ''')
             with gr.Column():
                 with gr.Row():
                     with gr.Column():
@@ -326,6 +328,120 @@ def demo():
                         with gr.Row():
                             output_video = gr.Video(label="Ad Video", format="mp4")
             generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[output_video, seed], api_name="video")
+        # Text2Video: LaVie
+
+        # Scribble Interactive
+        # with gr.Tab(label='Scribble Interactive'):
+        #     with gr.Row():
+        #         with gr.Column():
+        #             canvas_width = gr.Slider(
+        #                 label="Canvas width",
+        #                 minimum=256,
+        #                 maximum=MAX_IMAGE_RESOLUTION,
+        #                 value=DEFAULT_IMAGE_RESOLUTION,
+        #                 step=1,
+        #             )
+        #             canvas_height = gr.Slider(
+        #                 label="Canvas height",
+        #                 minimum=256,
+        #                 maximum=MAX_IMAGE_RESOLUTION,
+        #                 value=DEFAULT_IMAGE_RESOLUTION,
+        #                 step=1,
+        #             )
+        #             create_button = gr.Button("Open drawing canvas!")
+        #             image = gr.Image(tool="sketch", brush_radius=10)
+        #             prompt = gr.Textbox(label="Prompt")
+        #             run_button = gr.Button("Run")
+        #             with gr.Accordion("Advanced options", open=False):
+        #                 num_samples = gr.Slider(
+        #                     label="Number of images", minimum=1, maximum=MAX_NUM_IMAGES, value=DEFAULT_NUM_IMAGES, step=1
+        #                 )
+        #                 image_resolution = gr.Slider(
+        #                     label="Image resolution",
+        #                     minimum=256,
+        #                     maximum=MAX_IMAGE_RESOLUTION,
+        #                     value=DEFAULT_IMAGE_RESOLUTION,
+        #                     step=256,
+        #                 )
+        #                 num_steps = gr.Slider(label="Number of steps", minimum=1, maximum=100, value=20, step=1)
+        #                 guidance_scale = gr.Slider(label="Guidance scale", minimum=0.1, maximum=30.0, value=9.0, step=0.1)
+        #                 seed = gr.Slider(label="Seed", minimum=0, maximum=MAX_SEED, step=1, value=0)
+        #                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
+        #                 a_prompt = gr.Textbox(label="Additional prompt", value="best quality, extremely detailed")
+        #                 n_prompt = gr.Textbox(
+        #                     label="Negative prompt",
+        #                     value="longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+        #                 )
+        #         with gr.Column():
+        #             result = gr.Gallery(label="Output", show_label=False, columns=2, object_fit="scale-down")
+
+        # create_button.click(
+        #     fn=create_canvas,
+        #     inputs=[canvas_width, canvas_height],
+        #     outputs=image,
+        #     queue=False,
+        #     api_name=False,
+        # )
+
+        # inputs = [
+        #     image,
+        #     prompt,
+        #     a_prompt,
+        #     n_prompt,
+        #     num_samples,
+        #     image_resolution,
+        #     num_steps,
+        #     guidance_scale,
+        #     seed,
+        # ]
+        # prompt.submit(
+        #     fn=randomize_seed_fn,
+        #     inputs=[seed, randomize_seed],
+        #     outputs=seed,
+        #     queue=False,
+        #     api_name=False,
+        # ).then(
+        #     fn=process,
+        #     inputs=inputs,
+        #     outputs=result,
+        #     api_name=False,
+        # )
+        # run_button.click(
+        #     fn=randomize_seed_fn,
+        #     inputs=[seed, randomize_seed],
+        #     outputs=seed,
+        #     queue=False,
+        #     api_name=False,
+        # ).then(
+        #     fn=process,
+        #     inputs=inputs,
+        #     outputs=result,
+        # )
+
+        # Text2Music: MusicGen
+        with gr.Tab(label='Text2Music'):
+            with gr.Row():
+                with gr.Column():
+                    with gr.Row():
+                        text = gr.Text(label="Input Text", interactive=True)
+                        with gr.Column():
+                            radio = gr.Radio(["file", "mic"], value="file",
+                                            label="Condition on a melody (optional) File or Mic")
+                            melody = gr.Audio(source="upload", type="numpy", label="File",
+                                            interactive=True, elem_id="melody-input")
+                    with gr.Row():
+                        submit = gr.Button("Submit")
+                    with gr.Row():
+                        duration = gr.Slider(minimum=1, maximum=120, value=10, label="Duration", interactive=True)
+                with gr.Column():
+                    output = gr.Video(label="Generated Music")
+                    audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
+                    diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
+                    audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
+            submit.click(predict_full, inputs=["facebook/musicgen-medium", "MultiBand_Diffusion", text, [melody], duration, 250, 0, 
+                                                    1.0, 3.0],
+                                                outputs=[output, audio_output, diffusion_output, audio_diffusion])
+            radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
 
     return iface
 
