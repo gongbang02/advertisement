@@ -346,13 +346,10 @@ def demo():
                     with gr.Row():
                         duration = gr.Slider(minimum=1, maximum=120, value=10, label="Duration", interactive=True)
                 with gr.Column():
-                    output = gr.Video(label="Generated Music")
                     audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
-                    diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
-                    audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
             model="facebook/musicgen-melody"
             decoder="MultiBand_Diffusion"
-            submit.click(predict_full(model, decoder, text, [melody], duration, 250, 0, 1.0, 3.0), outputs=[output, audio_output, diffusion_output, audio_diffusion])
+            submit.click(predict_full(model, decoder, text, melody, duration, 250, 0, 1.0, 3.0), outputs=[audio_output])
             radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
 
     return iface
