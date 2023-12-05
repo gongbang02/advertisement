@@ -357,8 +357,6 @@ def demo():
                                           interactive=True, elem_id="melody-input")
                 with gr.Row():
                     submit = gr.Button("Submit")
-                    # Adapted from https://github.com/rkfg/audiocraft/blob/long/app.py, MIT license.
-                    _ = gr.Button("Interrupt").click(fn=interrupt, queue=False)
                 with gr.Row():
                     model = gr.Radio(["facebook/musicgen-melody", "facebook/musicgen-medium", "facebook/musicgen-small",
                                       "facebook/musicgen-large"],
