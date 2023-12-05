@@ -347,9 +347,8 @@ def demo():
                         duration = gr.Slider(minimum=1, maximum=120, value=10, label="Duration", interactive=True)
                 with gr.Column():
                     audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
-            model="facebook/musicgen-melody"
-            decoder="MultiBand_Diffusion"
-            submit.click(predict_full(model, decoder, text, melody, duration, 250, 0, 1.0, 3.0), outputs=[audio_output])
+            musicOut = predict_full(model="facebook/musicgen-melody", decoder="MultiBand_Diffusion", text=text, melody=melody, duration=duration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
+            submit.click(outputs=musicOut)
             radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
 
     return iface
