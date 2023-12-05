@@ -339,48 +339,48 @@ def demo():
         # Text2Music: MusicGen
         with gr.Tab(label='Text2Music'):
             gr.Markdown(
-            """
-            # MusicGen
-            This is your private demo for [MusicGen](https://github.com/facebookresearch/audiocraft),
-            a simple and controllable model for music generation
-            presented at: ["Simple and Controllable Music Generation"](https://huggingface.co/papers/2306.05284)
-            """
-        )
-        with gr.Row():
-            with gr.Column():
-                with gr.Row():
-                    text = gr.Text(label="Input Text", interactive=True)
-                    with gr.Column():
-                        radio = gr.Radio(["file", "mic"], value="file",
-                                         label="Condition on a melody (optional) File or Mic")
-                        melody = gr.Audio(source="upload", type="numpy", label="File",
-                                          interactive=True, elem_id="melody-input")
-                with gr.Row():
-                    submit = gr.Button("Submit")
-                with gr.Row():
-                    model = gr.Radio(["facebook/musicgen-melody", "facebook/musicgen-medium", "facebook/musicgen-small",
-                                      "facebook/musicgen-large"],
-                                     label="Model", value="facebook/musicgen-melody", interactive=True)
-                with gr.Row():
-                    decoder = gr.Radio(["Default", "MultiBand_Diffusion"],
-                                       label="Decoder", value="Default", interactive=True)
-                with gr.Row():
-                    duration = gr.Slider(minimum=1, maximum=120, value=10, label="Duration", interactive=True)
-                with gr.Row():
-                    topk = gr.Number(label="Top-k", value=250, interactive=True)
-                    topp = gr.Number(label="Top-p", value=0, interactive=True)
-                    temperature = gr.Number(label="Temperature", value=1.0, interactive=True)
-                    cfg_coef = gr.Number(label="Classifier Free Guidance", value=3.0, interactive=True)
-            with gr.Column():
-                output = gr.Video(label="Generated Music")
-                audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
-                diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
-                audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
-        submit.click(toggle_diffusion, decoder, [diffusion_output, audio_diffusion], queue=False,
-                     show_progress=False).then(predict_full, inputs=[model, decoder, text, melody, duration, topk, topp,
-                                                                     temperature, cfg_coef],
-                                               outputs=[output, audio_output, diffusion_output, audio_diffusion])
-        radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
+                """
+                # MusicGen
+                This is your private demo for [MusicGen](https://github.com/facebookresearch/audiocraft),
+                a simple and controllable model for music generation
+                presented at: ["Simple and Controllable Music Generation"](https://huggingface.co/papers/2306.05284)
+                """
+            )
+            with gr.Row():
+                with gr.Column():
+                    with gr.Row():
+                        text = gr.Text(label="Input Text", interactive=True)
+                        with gr.Column():
+                            radio = gr.Radio(["file", "mic"], value="file",
+                                            label="Condition on a melody (optional) File or Mic")
+                            melody = gr.Audio(source="upload", type="numpy", label="File",
+                                            interactive=True, elem_id="melody-input")
+                    with gr.Row():
+                        submit = gr.Button("Submit")
+                    with gr.Row():
+                        model = gr.Radio(["facebook/musicgen-melody", "facebook/musicgen-medium", "facebook/musicgen-small",
+                                        "facebook/musicgen-large"],
+                                        label="Model", value="facebook/musicgen-melody", interactive=True)
+                    with gr.Row():
+                        decoder = gr.Radio(["Default", "MultiBand_Diffusion"],
+                                        label="Decoder", value="Default", interactive=True)
+                    with gr.Row():
+                        duration = gr.Slider(minimum=1, maximum=120, value=10, label="Duration", interactive=True)
+                    with gr.Row():
+                        topk = gr.Number(label="Top-k", value=250, interactive=True)
+                        topp = gr.Number(label="Top-p", value=0, interactive=True)
+                        temperature = gr.Number(label="Temperature", value=1.0, interactive=True)
+                        cfg_coef = gr.Number(label="Classifier Free Guidance", value=3.0, interactive=True)
+                with gr.Column():
+                    output = gr.Video(label="Generated Music")
+                    audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
+                    diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
+                    audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
+            submit.click(toggle_diffusion, decoder, [diffusion_output, audio_diffusion], queue=False,
+                        show_progress=False).then(predict_full, inputs=[model, decoder, text, melody, duration, topk, topp,
+                                                                        temperature, cfg_coef],
+                                                outputs=[output, audio_output, diffusion_output, audio_diffusion])
+            radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
 
     return iface
 
