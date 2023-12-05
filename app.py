@@ -328,96 +328,8 @@ def demo():
                         with gr.Row():
                             output_video = gr.Video(label="Ad Video", format="mp4")
             generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[output_video, seed], api_name="video")
-        # Text2Video: LaVie
-
-        # Scribble Interactive
-        # with gr.Tab(label='Scribble Interactive'):
-        #     with gr.Row():
-        #         with gr.Column():
-        #             canvas_width = gr.Slider(
-        #                 label="Canvas width",
-        #                 minimum=256,
-        #                 maximum=MAX_IMAGE_RESOLUTION,
-        #                 value=DEFAULT_IMAGE_RESOLUTION,
-        #                 step=1,
-        #             )
-        #             canvas_height = gr.Slider(
-        #                 label="Canvas height",
-        #                 minimum=256,
-        #                 maximum=MAX_IMAGE_RESOLUTION,
-        #                 value=DEFAULT_IMAGE_RESOLUTION,
-        #                 step=1,
-        #             )
-        #             create_button = gr.Button("Open drawing canvas!")
-        #             image = gr.Image(tool="sketch", brush_radius=10)
-        #             prompt = gr.Textbox(label="Prompt")
-        #             run_button = gr.Button("Run")
-        #             with gr.Accordion("Advanced options", open=False):
-        #                 num_samples = gr.Slider(
-        #                     label="Number of images", minimum=1, maximum=MAX_NUM_IMAGES, value=DEFAULT_NUM_IMAGES, step=1
-        #                 )
-        #                 image_resolution = gr.Slider(
-        #                     label="Image resolution",
-        #                     minimum=256,
-        #                     maximum=MAX_IMAGE_RESOLUTION,
-        #                     value=DEFAULT_IMAGE_RESOLUTION,
-        #                     step=256,
-        #                 )
-        #                 num_steps = gr.Slider(label="Number of steps", minimum=1, maximum=100, value=20, step=1)
-        #                 guidance_scale = gr.Slider(label="Guidance scale", minimum=0.1, maximum=30.0, value=9.0, step=0.1)
-        #                 seed = gr.Slider(label="Seed", minimum=0, maximum=MAX_SEED, step=1, value=0)
-        #                 randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
-        #                 a_prompt = gr.Textbox(label="Additional prompt", value="best quality, extremely detailed")
-        #                 n_prompt = gr.Textbox(
-        #                     label="Negative prompt",
-        #                     value="longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
-        #                 )
-        #         with gr.Column():
-        #             result = gr.Gallery(label="Output", show_label=False, columns=2, object_fit="scale-down")
-
-        # create_button.click(
-        #     fn=create_canvas,
-        #     inputs=[canvas_width, canvas_height],
-        #     outputs=image,
-        #     queue=False,
-        #     api_name=False,
-        # )
-
-        # inputs = [
-        #     image,
-        #     prompt,
-        #     a_prompt,
-        #     n_prompt,
-        #     num_samples,
-        #     image_resolution,
-        #     num_steps,
-        #     guidance_scale,
-        #     seed,
-        # ]
-        # prompt.submit(
-        #     fn=randomize_seed_fn,
-        #     inputs=[seed, randomize_seed],
-        #     outputs=seed,
-        #     queue=False,
-        #     api_name=False,
-        # ).then(
-        #     fn=process,
-        #     inputs=inputs,
-        #     outputs=result,
-        #     api_name=False,
-        # )
-        # run_button.click(
-        #     fn=randomize_seed_fn,
-        #     inputs=[seed, randomize_seed],
-        #     outputs=seed,
-        #     queue=False,
-        #     api_name=False,
-        # ).then(
-        #     fn=process,
-        #     inputs=inputs,
-        #     outputs=result,
-        # )
-
+        
+        
         # Text2Music: MusicGen
         with gr.Tab(label='Text2Music'):
             with gr.Row():
@@ -438,7 +350,9 @@ def demo():
                     audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
                     diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
                     audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
-            submit.click(predict_full, inputs=["facebook/musicgen-medium", "MultiBand_Diffusion", text, [melody], duration, 250, 0, 
+            model="facebook/musicgen-medium"
+            decoder="MultiBand_Diffusion"
+            submit.click(predict_full, inputs=[model, decoder, text, [melody], duration, 250, 0, 
                                                     1.0, 3.0],
                                                 outputs=[output, audio_output, diffusion_output, audio_diffusion])
             radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
