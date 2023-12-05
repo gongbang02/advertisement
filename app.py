@@ -17,6 +17,7 @@ import random
 from huggingface_hub import hf_hub_download
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
+from controlnet.gradio_scribble_interactive import create_canvas, process_interactive
 from audiocraft.demos.musicgen_app import predict_full
 from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
     DeepFloydDataFiltering
@@ -285,7 +286,7 @@ def toggle_audio_src(choice):
 def predict(scribble_prompt, music_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
     controlNetOut = Image.fromarray(controlNetOut, 'RGB')
-    videoPath, _ = sample(image=resize_image(controlNetOut), seed=12345, randomize_seed=True, motion_bucket_id=200, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
+    videoPath, _ = sample(image=resize_image(controlNetOut), seed=12345, randomize_seed=True, motion_bucket_id=225, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
     video_clip = VideoFileClip(videoPath)
     vidDuration = video_clip.duration
     musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
@@ -317,6 +318,38 @@ def demo():
                             outputs=[output_video],
                             fn = predict
             )
+
+        # Scribble Interactive: ControlNet
+        with gr.Tab(label='Scribble Interactive'):
+            with gr.Row():
+                gr.Markdown("## Control Stable Diffusion with Interactive Scribbles")
+            with gr.Row():
+                with gr.Column():
+                    canvas_width = gr.Slider(label="Canvas Width", minimum=256, maximum=1024, value=512, step=1)
+                    canvas_height = gr.Slider(label="Canvas Height", minimum=256, maximum=1024, value=512, step=1)
+                    create_button = gr.Button(label="Start", value='Open drawing canvas!')
+                    input_image = gr.Image(source='upload', type='numpy', tool='sketch')
+                    gr.Markdown(value='Do not forget to change your brush width to make it thinner. '
+                                    'Just click on the small pencil icon in the upper right corner of the above block.')
+                    create_button.click(fn=create_canvas, inputs=[canvas_width, canvas_height], outputs=[input_image])
+                    prompt = gr.Textbox(label="Prompt")
+                    run_button = gr.Button(label="Run")
+                    num_samples = gr.Slider(label="Images", minimum=1, maximum=12, value=1, step=1)
+                    seed = gr.Slider(label="Seed", minimum=-1, maximum=2147483647, step=1, value=12345)
+                    with gr.Accordion("Advanced options", open=False):
+                        image_resolution = gr.Slider(label="Image Resolution", minimum=256, maximum=768, value=512, step=64)
+                        strength = gr.Slider(label="Control Strength", minimum=0.0, maximum=2.0, value=1.0, step=0.01)
+                        guess_mode = gr.Checkbox(label='Guess Mode', value=False)
+                        ddim_steps = gr.Slider(label="Steps", minimum=1, maximum=100, value=20, step=1)
+                        scale = gr.Slider(label="Guidance Scale", minimum=0.1, maximum=30.0, value=9.0, step=0.1)
+                        eta = gr.Slider(label="DDIM ETA", minimum=0.0, maximum=1.0, value=1.0, step=0.01)
+                        a_prompt = gr.Textbox(label="Added Prompt", value='best quality')
+                        n_prompt = gr.Textbox(label="Negative Prompt", value='lowres, bad anatomy, bad hands, cropped, worst quality')
+                with gr.Column():
+                    result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery").style(grid=2, height='auto')
+            ips = [input_image, prompt, a_prompt, n_prompt, num_samples, image_resolution, ddim_steps, guess_mode, strength, scale, seed, eta]
+            run_button.click(fn=process_interactive, inputs=ips, outputs=[result_gallery])
+
         # Image2Video: Stable Video Diffusion
         with gr.Tab(label='Image2Video'):
             with gr.Column():
@@ -335,7 +368,6 @@ def demo():
                         with gr.Row():
                             output_video = gr.Video(label="Ad Video", format="mp4")
             generate_btn.click(fn=sample, inputs=[image, seed, randomize_seed, motion_bucket_id, fps_id], outputs=[output_video, seed], api_name="video")
-        
         
         # Text2Music: MusicGen
         with gr.Tab(label='Text2Music'):
