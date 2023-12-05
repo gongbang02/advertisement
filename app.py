@@ -350,11 +350,9 @@ def demo():
                     audio_output = gr.Audio(label="Generated Music (wav)", type='filepath')
                     diffusion_output = gr.Video(label="MultiBand Diffusion Decoder")
                     audio_diffusion = gr.Audio(label="MultiBand Diffusion Decoder (wav)", type='filepath')
-            model="facebook/musicgen-medium"
+            model=gr.Textbox(label="Model", default="facebook/musicgen-medium")
             decoder="MultiBand_Diffusion"
-            submit.click(predict_full, inputs=[model, decoder, text, [melody], duration, 250, 0, 
-                                                    1.0, 3.0],
-                                                outputs=[output, audio_output, diffusion_output, audio_diffusion])
+            submit.click(predict_full(model, decoder, text, [melody], duration, 250, 0, 1.0, 3.0), outputs=[output, audio_output, diffusion_output, audio_diffusion])
             radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
 
     return iface
