@@ -290,7 +290,7 @@ def predict(scribble_prompt, music_prompt, scribble):
     vidDuration = video_clip.duration
     musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
     final_clip = video_clip.set_audio(musicOut)
-    final_clip.write_videofile("video_with_music.mp4", fps=6, threads=1, codec="libx264")
+    #final_clip.write_videofile("video_with_music.mp4", fps=6, threads=1, codec="libx264")
     return videoPath
 
 
