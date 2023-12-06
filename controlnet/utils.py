@@ -1,6 +1,6 @@
 import random
 
-from settings import MAX_SEED
+from controlnet.settings import MAX_SEED
 
 
 def randomize_seed_fn(seed: int, randomize_seed: bool) -> int:
