@@ -324,80 +324,25 @@ def demo():
                             output_video = gr.Video(label="Ad Video", format="mp4")
             i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
                             outputs=[output_video],
-                            fn = predict
+                            fn = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
             )
 
         # Scribble2Image: ControlNet
         with gr.Tab(label='Scribble2Image'):
-            with gr.Row():
-                with gr.Column():
-                    image = gr.Image()
-                    prompt = gr.Textbox(label="Prompt")
-                    run_button = gr.Button("Run")
-                    with gr.Accordion("Advanced options", open=False):
-                        preprocessor_name = gr.Radio(
-                            label="Preprocessor", choices=["HED", "PidiNet", "None"], type="value", value="HED"
-                        )
-                        num_samples = gr.Slider(
-                            label="Number of images", minimum=1, maximum=MAX_NUM_IMAGES, value=DEFAULT_NUM_IMAGES, step=1
-                        )
-                        image_resolution = gr.Slider(
-                            label="Image resolution",
-                            minimum=256,
-                            maximum=MAX_IMAGE_RESOLUTION,
-                            value=DEFAULT_IMAGE_RESOLUTION,
-                            step=256,
-                        )
-                        preprocess_resolution = gr.Slider(
-                            label="Preprocess resolution", minimum=128, maximum=512, value=512, step=1
-                        )
-                        num_steps = gr.Slider(label="Number of steps", minimum=1, maximum=100, value=20, step=1)
-                        guidance_scale = gr.Slider(label="Guidance scale", minimum=0.1, maximum=30.0, value=9.0, step=0.1)
-                        seed = gr.Slider(label="Seed", minimum=0, maximum=MAX_SEED, step=1, value=0)
-                        randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
-                        a_prompt = gr.Textbox(label="Additional prompt", value="best quality, extremely detailed")
-                        n_prompt = gr.Textbox(
-                            label="Negative prompt",
-                            value="longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
-                        )
-                with gr.Column():
-                    result = gr.Gallery(label="Output", show_label=False, columns=2, object_fit="scale-down")
-            inputs = [
-                image,
-                prompt,
-                a_prompt,
-                n_prompt,
-                num_samples,
-                image_resolution,
-                preprocess_resolution,
-                num_steps,
-                guidance_scale,
-                seed,
-                preprocessor_name,
-            ]
-            prompt.submit(
-                fn=randomize_seed_fn,
-                inputs=[seed, randomize_seed],
-                outputs=seed,
-                queue=False,
-                api_name=False,
-            ).then(
-                fn=process,
-                inputs=inputs,
-                outputs=result,
-                api_name=False,
-            )
-            run_button.click(
-                fn=randomize_seed_fn,
-                inputs=[seed, randomize_seed],
-                outputs=seed,
-                queue=False,
-                api_name=False,
-            ).then(
-                fn=process,
-                inputs=inputs,
-                outputs=result,
-                api_name="scribble",
+            with gr.Column():
+                with gr.Row():
+                    with gr.Column():
+                        with gr.Row():
+                            scribble = gr.Image(label="Upload your scribble")
+                        with gr.Row():
+                            scribble_prompt = gr.Text(label='Describe your scene')
+                        s2i_end_btn = gr.Button("Submit")
+                    with gr.Tab(label='Result'):
+                        with gr.Row():
+                            output_video = gr.Video(label="Ad Video", format="mp4")
+            s2i_end_btn.click(inputs=[scribble_prompt, scribble],
+                            outputs=[output_video],
+                            fn = predict
             )
 
         # Scribble Interactive: ControlNet
