@@ -303,6 +303,11 @@ def predict(scribble_prompt, music_prompt, scribble):
     final_clip.write_videofile("video_with_music.mp4")
     return "video_with_music.mp4"
 
+def process_upload_scribble(scribble_prompt, scribble):
+    controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
+    #controlNetOut = Image.fromarray(controlNetOut, 'RGB')
+    return controlNetOut
+
 
 def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
@@ -324,7 +329,7 @@ def demo():
                             output_video = gr.Video(label="Ad Video", format="mp4")
             i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
                             outputs=[output_video],
-                            fn = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
+                            fn = predict
             )
 
         # Scribble2Image: ControlNet
@@ -333,16 +338,16 @@ def demo():
                 with gr.Row():
                     with gr.Column():
                         with gr.Row():
-                            scribble = gr.Image(label="Upload your scribble")
+                            scribble_upload = gr.Image(label="Upload your scribble")
                         with gr.Row():
-                            scribble_prompt = gr.Text(label='Describe your scene')
+                            scribble_upload_prompt = gr.Text(label='Describe your scene')
                         s2i_end_btn = gr.Button("Submit")
                     with gr.Tab(label='Result'):
                         with gr.Row():
-                            output_video = gr.Video(label="Ad Video", format="mp4")
-            s2i_end_btn.click(inputs=[scribble_prompt, scribble],
-                            outputs=[output_video],
-                            fn = predict
+                            output_image = gr.Image(label="Output", format="numpy")
+            s2i_end_btn.click(inputs=[scribble_upload_prompt, scribble_upload],
+                            outputs=[output_image],
+                            fn = process_upload_scribble
             )
 
         # Scribble Interactive: ControlNet
