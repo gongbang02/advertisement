@@ -20,7 +20,7 @@ dependencies:
       - test-tube>=0.7.5
       - streamlit==1.12.1
       - einops==0.6.1
-      - transformers==4.28.1
+      - transformers
       - webdataset==0.2.5
       - kornia==0.6.9
       - open_clip_torch>=2.20.0
