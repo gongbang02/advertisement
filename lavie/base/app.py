@@ -8,7 +8,7 @@ import cv2
 import pandas as pd
 import torchvision
 import random
-from models import get_models
+from lavie.base.models import get_models
 
 from lavie.base.pipelines.pipeline_videogen import VideoGenPipeline
 from lavie.base.download import find_model
