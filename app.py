@@ -405,16 +405,7 @@ def demo():
                         video_out = gr.Video(label="Video result", elem_id="video-output")
 
                     inputs = [prompt, seed_inp, ddim_steps, cfg, infer_type]
-                    outputs = [video_out]
-
-                ex = gr.Examples(
-                    fn = infer,
-                    inputs=[prompt, seed_inp, ddim_steps,cfg,infer_type],
-                    outputs=[video_out],
-                    cache_examples=False,
-                )
-                ex.dataset.headers = [""]
-                
+                    outputs = [video_out]                
             submit_btn.click(infer, inputs, outputs)
 
         # Image2Video: Stable Video Diffusion
