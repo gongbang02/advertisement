@@ -16,8 +16,8 @@ sys.path.append(os.path.split(sys.path[0])[0])
 from lavie.base.models import get_models
 import imageio
 
-config_path = "./base/configs/sample.yaml"
-args = OmegaConf.load("./base/configs/sample.yaml")
+config_path = "./lavie/base/configs/sample.yaml"
+args = OmegaConf.load("./lavie/base/configs/sample.yaml")
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -25,7 +25,7 @@ def model_t2v_fun(args):
     # sd_path = args.pretrained_path + "/stable-diffusion-v1-4"
     sd_path = args.pretrained_path
     unet = get_models(args, sd_path).to(device, dtype=torch.float16)
-    state_dict = find_model("./pretrained_models/lavie_base.pt")
+    state_dict = find_model("./lavie/pretrained_models/lavie_base.pt")
     # state_dict = find_model("./pretrained_models/lavie_base.pt")
     unet.load_state_dict(state_dict)
     	
