@@ -3,9 +3,9 @@ import torch
 import argparse
 import torchvision
 
-from pipeline_videogen import VideoGenPipeline
+from lavie.base.pipelines.pipeline_videogen import VideoGenPipeline
 
-from download import find_model
+from lavie.base.download import find_model
 from diffusers.schedulers import DDIMScheduler, DDPMScheduler, PNDMScheduler, EulerDiscreteScheduler
 from diffusers.models import AutoencoderKL
 from transformers import CLIPTokenizer, CLIPTextModel, CLIPTextModelWithProjection
@@ -13,18 +13,17 @@ from omegaconf import OmegaConf
 
 import os, sys
 sys.path.append(os.path.split(sys.path[0])[0])
-from models import get_models
+from lavie.base.odels import get_models
 import imageio
 
 def main(args):
-	if args.seed is not None:
-		torch.manual_seed(args.seed)
+	#torch.manual_seed(args.seed)
 	torch.set_grad_enabled(False)
 	device = "cuda" if torch.cuda.is_available() else "cpu"
 
 	sd_path = args.pretrained_path + "/stable-diffusion-v1-4"
 	unet = get_models(args, sd_path).to(device, dtype=torch.float16)
-	state_dict = find_model(args.ckpt_path)
+	state_dict = find_model(args.pretrained_path + "/lavie_base.pt")
 	unet.load_state_dict(state_dict)
 	
 	vae = AutoencoderKL.from_pretrained(sd_path, subfolder="vae", torch_dtype=torch.float16).to(device)

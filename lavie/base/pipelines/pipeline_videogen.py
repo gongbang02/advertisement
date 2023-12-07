@@ -42,7 +42,7 @@ from dataclasses import dataclass
 
 import os, sys
 sys.path.append(os.path.split(sys.path[0])[0])
-from models.unet import UNet3DConditionModel
+from lavie.base.models.unet import UNet3DConditionModel
 
 import numpy as np
 

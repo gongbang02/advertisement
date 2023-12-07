@@ -31,6 +31,7 @@ from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
     DeepFloydDataFiltering
 from svd.sgm.inference.helpers import embed_watermark
 from svd.sgm.util import default, instantiate_from_config
+from lavie.base.app import infer
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -380,6 +381,41 @@ def demo():
                     result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery", columns=2, height='auto')
             ips = [input_image, prompt, a_prompt, n_prompt, num_samples, image_resolution, ddim_steps, guess_mode, strength, scale, seed, eta]
             run_button.click(fn=process_interactive, inputs=ips, outputs=[result_gallery])
+
+        # Text2Video: LaVie
+        with gr.Tab(label='Text2Video'):
+            gr.Markdown("<font color=red size=10><center>LaVie: Text-to-Video generation</center></font>")
+            gr.Markdown(
+                """<div style="text-align:center">
+                [<a href="https://arxiv.org/abs/2309.15103">Arxiv Report</a>] | [<a href="https://vchitect.github.io/LaVie-project/">Project Page</a>] | [<a href="https://github.com/Vchitect/LaVie">Github</a>]</div>
+                """
+            )
+            with gr.Column():
+                with gr.Row(elem_id="col-container"):
+                    with gr.Column():
+                            
+                        prompt = gr.Textbox(value="a corgi walking in the park at sunrise, oil painting style", label="Prompt", placeholder="enter prompt", show_label=True, elem_id="prompt-in", min_width=200, lines=2)
+                        infer_type = gr.Dropdown(['ddpm','ddim','eulerdiscrete'], label='infer_type',value='ddim')
+                        ddim_steps = gr.Slider(label='Steps', minimum=50, maximum=300, value=50, step=1)
+                        seed_inp = gr.Slider(value=-1,label="seed (for random generation, use -1)",show_label=True,minimum=-1,maximum=2147483647)
+                        cfg = gr.Number(label="guidance_scale",value=7.5)
+
+                    with gr.Column():
+                        submit_btn = gr.Button("Generate video")
+                        video_out = gr.Video(label="Video result", elem_id="video-output")
+
+                    inputs = [prompt, seed_inp, ddim_steps, cfg, infer_type]
+                    outputs = [video_out]
+
+                ex = gr.Examples(
+                    fn = infer,
+                    inputs=[prompt, seed_inp, ddim_steps,cfg,infer_type],
+                    outputs=[video_out],
+                    cache_examples=False,
+                )
+                ex.dataset.headers = [""]
+                
+            submit_btn.click(infer, inputs, outputs)
 
         # Image2Video: Stable Video Diffusion
         with gr.Tab(label='Image2Video'):
