@@ -57,7 +57,7 @@ dependencies:
       - ffmpeg==1.4
       - gradio
       - uuid
-      - accelerate==0.19.0
+      - accelerate>=0.20.3
       - black==23.7.0
       - chardet==5.1.0
       - clip @ git+https://github.com/openai/CLIP.git
