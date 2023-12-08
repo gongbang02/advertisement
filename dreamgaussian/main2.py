@@ -644,3 +644,28 @@ class GUI2:
         self.save_model()
         
 
+if __name__ == "__main__":
+    import argparse
+    from omegaconf import OmegaConf
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True, help="path to the yaml config file")
+    args, extras = parser.parse_known_args()
+
+    # override default config from cli
+    opt = OmegaConf.merge(OmegaConf.load(args.config), OmegaConf.from_cli(extras))
+
+    # auto find mesh from stage 1
+    if opt.mesh is None:
+        default_path = os.path.join(opt.outdir, opt.save_path + '_mesh.' + opt.mesh_format)
+        if os.path.exists(default_path):
+            opt.mesh = default_path
+        else:
+            raise ValueError(f"Cannot find mesh from {default_path}, must specify --mesh explicitly!")
+
+    gui = GUI(opt)
+
+    if opt.gui:
+        gui.render()
+    else:
+        gui.train(opt.iters_refine)

@@ -39,18 +39,9 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
         image_block.save(f'tmp_data/{img_hash}_rgba.png')
 
     # stage 1
-    args = 'dreamgaussian/configs/image.yaml'
-    extras = f'input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'
-
-    # override default config from cli
-    opt = OmegaConf.merge(args, extras)
-
-    gui = GUI(opt)
-
-    if opt.gui:
-        gui.render()
-    else:
-        gui.train(opt.iters)
+    subprocess.run([
+                       f'python main.py --config configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                   shell=True)
 
     return f'logs/{img_hash}_mesh.glb'
 
@@ -58,26 +49,9 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
 def optimize_stage_2(image_block: Image.Image, elevation_slider: float):
     img_hash = hashlib.sha256(image_block.tobytes()).hexdigest()
     # stage 2
-    args = 'dreamgaussian/configs/image.yaml'
-    extras = f'input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'
-    # override default config from cli
-    opt = OmegaConf.merge(OmegaConf.load(args.config), OmegaConf.from_cli(extras))
-
-    # auto find mesh from stage 1
-    if opt.mesh is None:
-        default_path = os.path.join(opt.outdir, opt.save_path + '_mesh.' + opt.mesh_format)
-        if os.path.exists(default_path):
-            opt.mesh = default_path
-        else:
-            raise ValueError(f"Cannot find mesh from {default_path}, must specify --mesh explicitly!")
-
-    gui = GUI2(opt)
-
-    if opt.gui:
-        gui.render()
-    else:
-        gui.train(opt.iters_refine)
-
+    subprocess.run([
+                       f'python main2.py --config configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                   shell=True)
 
     return f'logs/{img_hash}.glb'
 
