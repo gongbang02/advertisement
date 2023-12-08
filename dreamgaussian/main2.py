@@ -4,6 +4,8 @@ import time
 import tqdm
 import numpy as np
 # import dearpygui.dearpygui as dpg
+import sys
+sys.path.append('./')
 
 import torch
 import torch.nn.functional as F
