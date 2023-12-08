@@ -97,4 +97,3 @@ dependencies:
       - -e git+https://github.com/NVlabs/nvdiffrast.git@main#egg=nvdiffrast
       - -e git+https://github.com/ashawkey/kiuikit.git@main#egg=kiui
       - -e ./dreamgaussian/simple-knn
-      - -e ./dreamgaussian/diff-gaussian-rasterization
