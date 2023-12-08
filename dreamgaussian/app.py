@@ -3,12 +3,9 @@ import os
 from PIL import Image
 import subprocess
 import hashlib
-from dreamgaussian.main import GUI
-from dreamgaussian.main2 import GUI2
-from omegaconf import OmegaConf
 
-#os.system('pip install -e ./simple-knn')
-#os.system('pip install -e ./diff-gaussian-rasterization')
+#os.system('pip install -e ./dreamgaussian/simple-knn')
+#os.system('pip install -e ./dreamgaussian/diff-gaussian-rasterization')
 
 _TITLE = '''DreamGaussian: Generative Gaussian Splatting for Efficient 3D Content Creation'''
 _IMG_USER_GUIDE = "Please upload an image in the block above (or choose an example above) and click **Generate 3D**."

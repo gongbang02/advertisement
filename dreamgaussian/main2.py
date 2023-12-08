@@ -18,7 +18,7 @@ from dreamgaussian.mesh_renderer import Renderer
 
 # from kiui.lpips import LPIPS
 
-class GUI2:
+class GUI:
     def __init__(self, opt):
         self.opt = opt  # shared with the trainer's opt to support in-place modification of rendering parameters.
         self.gui = opt.gui # enable gui
