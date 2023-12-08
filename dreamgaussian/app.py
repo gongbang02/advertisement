@@ -3,6 +3,9 @@ import os
 from PIL import Image
 import subprocess
 import hashlib
+from dreamgaussian.main import GUI
+from dreamgaussian.main2 import GUI2
+from omegaconf import OmegaConf
 
 os.system('pip install -e ./simple-knn')
 #os.system('pip install -e ./diff-gaussian-rasterization')
@@ -36,9 +39,18 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
         image_block.save(f'tmp_data/{img_hash}_rgba.png')
 
     # stage 1
-    subprocess.run([
-                       f'python dreamgaussian/main.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
-                   shell=True)
+    args = 'dreamgaussian/configs/image.yaml'
+    extras = f'input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'
+
+    # override default config from cli
+    opt = OmegaConf.merge(args, extras)
+
+    gui = GUI(opt)
+
+    if opt.gui:
+        gui.render()
+    else:
+        gui.train(opt.iters)
 
     return f'logs/{img_hash}_mesh.glb'
 
@@ -46,9 +58,26 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
 def optimize_stage_2(image_block: Image.Image, elevation_slider: float):
     img_hash = hashlib.sha256(image_block.tobytes()).hexdigest()
     # stage 2
-    subprocess.run([
-                       f'python dreamgaussian/main2.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
-                   shell=True)
+    args = 'dreamgaussian/configs/image.yaml'
+    extras = f'input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'
+    # override default config from cli
+    opt = OmegaConf.merge(OmegaConf.load(args.config), OmegaConf.from_cli(extras))
+
+    # auto find mesh from stage 1
+    if opt.mesh is None:
+        default_path = os.path.join(opt.outdir, opt.save_path + '_mesh.' + opt.mesh_format)
+        if os.path.exists(default_path):
+            opt.mesh = default_path
+        else:
+            raise ValueError(f"Cannot find mesh from {default_path}, must specify --mesh explicitly!")
+
+    gui = GUI2(opt)
+
+    if opt.gui:
+        gui.render()
+    else:
+        gui.train(opt.iters_refine)
+
 
     return f'logs/{img_hash}.glb'
 
