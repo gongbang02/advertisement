@@ -37,6 +37,7 @@ from lavie.base.app import infer
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
 from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
+from ledits.app import edit
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -324,6 +325,512 @@ def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
         gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
         
+        # Text2Image: DALL-E 3
+        with gr.Tab(label='Text2Image'):
+            gr.HTML(
+                """
+                    <div style="text-align: center; margin: 0 auto;">
+                    <div
+                        style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.8rem;
+                        font-size: 1.75rem;
+                        "
+                    >
+                        <h1 style="font-weight: 900; margin-bottom: 7px;margin-top:5px">
+                        DALL•E 3 XL
+                        </h1> 
+                    </div>
+                    <p style="margin-bottom: 10px; font-size: 94%; line-height: 23px;">
+                        This space demonstrates the work of the model <a style="text-decoration: underline;" href="https://huggingface.co/openskyml/dalle-3-xl">openskyml/dalle-3-xl</a>.
+                    </p>
+                    </div>
+                """
+            )
+
+            gr.Markdown(
+                """
+                For high quality text-to-image generation you can also try the  [Bing Image Creator](https://www.bing.com/images/create)
+                """
+            )
+            with gr.Row():
+                image_output = gr.Image(type="pil", label="Output Image", elem_id="gallery")
+                with gr.Column(elem_id="prompt-container"):
+                    text_prompt = gr.Textbox(label="Prompt", placeholder="a cute cat", lines=1, elem_id="prompt-text-input")
+                    text_button = gr.Button("Generate", variant='primary', elem_id="gen-button")
+
+            with gr.Accordion("Advanced settings", open=False):
+                negative_prompt = gr.Textbox(label="Negative Prompt", value="text, blurry, fuzziness", lines=1, elem_id="negative-prompt-text-input")
+
+            text_button.click(query, inputs=[text_prompt, negative_prompt], outputs=image_output)
+
+        # Image Editting: Ledits++
+        with gr.Tab(label='Image Editting'):
+                def update_counter(sega_concepts_counter, concept1, concept2, concept3):
+                    if sega_concepts_counter == "":
+                        sega_concepts_counter = sum(1 for concept in (concept1, concept2, concept3) if concept != '')
+                    return sega_concepts_counter
+                def remove_concept(sega_concepts_counter, row_triggered):
+                    sega_concepts_counter -= 1
+                    rows_visibility = [gr.update(visible=False) for _ in range(4)]
+                
+                    if(row_triggered-1 > sega_concepts_counter):
+                        rows_visibility[sega_concepts_counter] = gr.update(visible=True)
+                    else:
+                        rows_visibility[row_triggered-1] = gr.update(visible=True)
+                
+                    row1_visibility, row2_visibility, row3_visibility, row4_visibility = rows_visibility
+
+                    guidance_scale_label = "Concept Guidance Scale"
+                    # enable_interactive =  gr.update(interactive=True)
+                    return (gr.update(visible=False),
+                            gr.update(visible=False, value="",),
+                            gr.update(interactive=True, value=""),
+                            gr.update(visible=False,label = guidance_scale_label),
+                            gr.update(interactive=True, value =False),
+                            gr.update(value=DEFAULT_WARMUP_STEPS),
+                            gr.update(value=DEFAULT_THRESHOLD),
+                            gr.update(visible=True),
+                            gr.update(interactive=True, value="custom"),
+                            row1_visibility,
+                            row2_visibility,
+                            row3_visibility,
+                            row4_visibility,
+                            sega_concepts_counter
+                            ) 
+                
+                
+                
+                def update_display_concept(button_label, edit_concept, neg_guidance, sega_concepts_counter):
+                    sega_concepts_counter += 1
+                    guidance_scale_label = "Concept Guidance Scale"
+                    if(button_label=='Remove'):
+                        neg_guidance = True
+                        guidance_scale_label = "Negative Guidance Scale" 
+                
+                    return (gr.update(visible=True), #boxn
+                            gr.update(visible=True, value=edit_concept), #concept_n
+                            gr.update(visible=True,label = guidance_scale_label), #guidance_scale_n
+                            gr.update(value=neg_guidance),#neg_guidance_n
+                            gr.update(visible=False), #row_n
+                            gr.update(visible=True), #row_n+1
+                            sega_concepts_counter
+                            ) 
+
+
+                def display_editing_options(run_button, clear_button, sega_tab):
+                    return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+                
+                def update_interactive_mode(add_button_label):
+                    if add_button_label == "Clear":
+                        return gr.update(interactive=False), gr.update(interactive=False)
+                    else:
+                        return gr.update(interactive=True), gr.update(interactive=True)
+                
+                def update_dropdown_parms(dropdown):
+                    if dropdown == 'custom':
+                        return DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,DEFAULT_WARMUP_STEPS, DEFAULT_THRESHOLD
+                    elif dropdown =='style':
+                        return STYLE_SEGA_CONCEPT_GUIDANCE_SCALE,STYLE_WARMUP_STEPS, STYLE_THRESHOLD
+                    elif dropdown =='object':
+                        return OBJECT_SEGA_CONCEPT_GUIDANCE_SCALE,OBJECT_WARMUP_STEPS, OBJECT_THRESHOLD
+                    elif dropdown =='faces':
+                        return FACE_SEGA_CONCEPT_GUIDANCE_SCALE,FACE_WARMUP_STEPS, FACE_THRESHOLD
+
+
+                def reset_do_inversion():
+                    return True
+
+                def reset_do_reconstruction():
+                    do_reconstruction = True
+                    return  do_reconstruction
+
+                def reset_image_caption():
+                    return ""
+
+                def update_inversion_progress_visibility(input_image, do_inversion):
+                    if do_inversion and not input_image is None:
+                        return gr.update(visible=True)
+                    else:
+                        return gr.update(visible=False)
+
+                def update_edit_progress_visibility(input_image, do_inversion):
+                    return gr.update(visible=True)
+
+                wts = gr.State()
+                zs = gr.State()
+                attention_store=gr.State()
+                text_cross_attention_maps = gr.State()
+                reconstruction = gr.State()
+                do_inversion = gr.State(value=True)
+                do_reconstruction = gr.State(value=True)
+                sega_concepts_counter = gr.State(0)
+                image_caption = gr.State(value="")
+
+                with gr.Row():
+                    input_image = gr.Image(label="Input Image", interactive=True, elem_id="input_image")
+                    ddpm_edited_image = gr.Image(label=f"Pure DDPM Inversion Image", interactive=False, visible=False)
+                    sega_edited_image = gr.Image(label=f"LEDITS Edited Image", interactive=False, elem_id="output_image")
+
+                with gr.Row():
+                    with gr.Group(visible=False, elem_id="box1") as box1:
+                        with gr.Row():
+                            concept_1 = gr.Button(scale=3, value="")
+                            remove_concept1 = gr.Button("x", scale=1, min_width=10)
+                        with gr.Row():
+                            guidnace_scale_1 = gr.Slider(label='Concept Guidance Scale', minimum=1, maximum=30,
+                                                info="How strongly the concept should modify the image",
+                                                                    value=DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,
+                                                                    step=0.5, interactive=True)
+                    with gr.Group(visible=False, elem_id="box2") as box2:
+                        with gr.Row():
+                            concept_2 = gr.Button(scale=3, value="")
+                            remove_concept2 = gr.Button("x", scale=1, min_width=10)
+                        with gr.Row():
+                            guidnace_scale_2 = gr.Slider(label='Concept Guidance Scale', minimum=1, maximum=30,
+                                                info="How strongly the concept should modify the image",
+                                                                        value=DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,
+                                                                        step=0.5, interactive=True)
+                    with gr.Group(visible=False, elem_id="box3") as box3:
+                        with gr.Row():
+                            concept_3 = gr.Button(scale=3, value="")
+                            remove_concept3 = gr.Button("x", scale=1, min_width=10)
+                        with gr.Row():
+                            guidnace_scale_3 = gr.Slider(label='Concept Guidance Scale', minimum=1, maximum=30,
+                                                info="How strongly the concept should modify the image",
+                                                                        value=DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,
+                                                                        step=0.5, interactive=True)
+
+
+                with gr.Row():
+                    inversion_progress = gr.Textbox(visible=False, label="Inversion progress")
+                    
+                with gr.Group():
+                    intro_segs = gr.Markdown("Add/Remove Concepts from your Image <span style=\"font-size: 12px; color: rgb(156, 163, 175)\">with Semantic Guidance</span>")
+                            # 1st SEGA concept
+                    with gr.Row() as row1:
+                        with gr.Column(scale=3, min_width=100):
+                            with gr.Row():
+                                edit_concept_1 = gr.Textbox(
+                                                label="Concept",
+                                                show_label=True,
+                                                max_lines=1, value="",
+                                                placeholder="E.g.: Sunglasses",
+                                            )
+
+                                dropdown1 = gr.Dropdown(label = "Edit Type", value ='custom' , choices=['custom','style', 'object', 'faces'])
+                
+
+                        with gr.Column(scale=1, min_width=100, visible=False):
+                                neg_guidance_1 = gr.Checkbox(label='Remove Concept?')
+                        
+                        with gr.Column(scale=1, min_width=100):
+                            with gr.Row(): # better mobile ui
+                                with gr.Column():
+                                    add_1 = gr.Button('Add')
+                                    remove_1 = gr.Button('Remove')
+                        
+                
+                            # 2nd SEGA concept
+                    with gr.Row(visible=False) as row2:
+                        with gr.Column(scale=3, min_width=100):
+                            with gr.Row(): #better mobile UI
+                                edit_concept_2 = gr.Textbox(
+                                                label="Concept",
+                                                show_label=True,
+                                                max_lines=1,
+                                                placeholder="E.g.: Realistic",
+                                            )
+                                dropdown2 = gr.Dropdown(label = "Edit Type", value ='custom' , choices=['custom','style', 'object', 'faces'])
+
+                        with gr.Column(scale=1, min_width=100, visible=False):
+                                neg_guidance_2 = gr.Checkbox(label='Remove Concept?')
+                            
+                        with gr.Column(scale=1, min_width=100):
+                            with gr.Row(): # better mobile ui
+                                with gr.Column():
+                                    add_2 = gr.Button('Add')
+                                    remove_2 = gr.Button('Remove')
+                
+                            # 3rd SEGA concept
+                    with gr.Row(visible=False) as row3:
+                        with gr.Column(scale=3, min_width=100):
+                            with gr.Row(): #better mobile UI  
+                                edit_concept_3 = gr.Textbox(
+                                                label="Concept",
+                                                show_label=True,
+                                                max_lines=1,
+                                                placeholder="E.g.: orange",
+                                            )
+                                dropdown3 = gr.Dropdown(label = "Edit Type", value ='custom' , choices=['custom','style', 'object', 'faces'])
+                        
+                        with gr.Column(scale=1, min_width=100, visible=False):
+                                neg_guidance_3 = gr.Checkbox(label='Remove Concept?',visible=True)
+                        
+                        with gr.Column(scale=1, min_width=100):
+                            with gr.Row(): # better mobile ui
+                                with gr.Column():
+                                    add_3 = gr.Button('Add')
+                                    remove_3 = gr.Button('Remove')
+                
+                    with gr.Row(visible=False) as row4:
+                        gr.Markdown("### Max of 3 concepts reached. Remove a concept to add more")
+                    
+                
+                with gr.Row():
+                    run_button = gr.Button("Edit your image!", visible=True)
+                    
+
+                with gr.Accordion("Advanced Options", open=False):
+                    with gr.Row():
+                        tar_prompt = gr.Textbox(
+                                        label="Describe your edited image (optional)",
+                                        elem_id="target_prompt",
+                                        # show_label=False,
+                                        max_lines=1, value="", scale=3,
+                                        placeholder="Target prompt, DDPM Inversion", info = "DPM Solver++ Inversion Prompt. Can help with global changes, modify to what you would like to see"
+                                    )
+                    with gr.Tabs() as tabs:
+
+                        with gr.TabItem('General options', id=2):
+                            with gr.Row():
+                                with gr.Column(min_width=100):
+                                    clear_button = gr.Button("Clear", visible=True)
+                                    src_prompt = gr.Textbox(lines=1, label="Source Prompt", interactive=True, placeholder="")
+                                    steps = gr.Number(value=50, precision=0, label="Num Diffusion Steps", interactive=True)
+                                    src_cfg_scale = gr.Number(value=3.5, label=f"Source Guidance Scale", interactive=True)
+                                    mask_type = gr.Radio(choices=["No mask", "Cross Attention Mask", "Intersect Mask"], value="Intersect Mask", label="Mask type")
+
+                                with gr.Column(min_width=100):
+                                    reconstruct_button = gr.Button("Show Reconstruction", visible=False)
+                                    skip = gr.Slider(minimum=0, maximum=95, value=25, step=1, label="Skip Steps", interactive=True, info = "Percentage of skipped denoising steps. Bigger values increase fidelity to input image")
+                                    tar_cfg_scale = gr.Slider(minimum=1, maximum=30,value=7.5, label=f"Guidance Scale", interactive=True)
+                                    seed = gr.Slider(minimum=0, maximum=np.iinfo(np.int32).max, label="Seed", interactive=True, randomize=True)
+                                    randomize_seed = gr.Checkbox(label='Randomize seed', value=False)
+
+                        with gr.TabItem('SEGA options', id=3) as sega_advanced_tab:
+                            # 1st SEGA concept
+                            gr.Markdown("1st concept")
+                            with gr.Row():
+                                warmup_1 = gr.Slider(label='Warmup', minimum=0, maximum=50,
+                                                    value=DEFAULT_WARMUP_STEPS,
+                                                    step=1, interactive=True, info="At which step to start applying semantic guidance. Bigger values reduce edit concept's effect")
+                                threshold_1 = gr.Slider(label='Threshold', minimum=0, maximum=0.99,
+                                                        value=DEFAULT_THRESHOLD, step=0.01, interactive=True, 
+                                                        info = "Lower the threshold for more effect (e.g. ~0.9 for style transfer)")
+
+                            # 2nd SEGA concept
+                            gr.Markdown("2nd concept")
+                            with gr.Row() as row2_advanced:
+                                warmup_2 = gr.Slider(label='Warmup', minimum=0, maximum=50,
+                                                    value=DEFAULT_WARMUP_STEPS,
+                                                    step=1, interactive=True, info="At which step to start applying semantic guidance. Bigger values reduce edit concept's effect")
+                                threshold_2 = gr.Slider(label='Threshold', minimum=0, maximum=0.99,
+                                                        value=DEFAULT_THRESHOLD,
+                                                        step=0.01, interactive=True,
+                                                        info = "Lower the threshold for more effect (e.g. ~0.9 for style transfer)")
+                            # 3rd SEGA concept
+                            gr.Markdown("3rd concept")
+                            with gr.Row() as row3_advanced:
+                                warmup_3 = gr.Slider(label='Warmup', minimum=0, maximum=50,
+                                                    value=DEFAULT_WARMUP_STEPS, step=1,
+                                                    interactive=True, info="At which step to start applying semantic guidance. Bigger values reduce edit concept's effect")
+                                threshold_3 = gr.Slider(label='Threshold', minimum=0, maximum=0.99,
+                                                        value=DEFAULT_THRESHOLD, step=0.01,
+                                                        interactive=True,
+                                                        info = "Lower the threshold for more effect (e.g. ~0.9 for style transfer)")
+
+                add_1.click(fn=update_counter,
+                            inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3],
+                            outputs=sega_concepts_counter,queue=False).then(fn = update_display_concept, inputs=[add_1, edit_concept_1, neg_guidance_1, sega_concepts_counter],  outputs=[box1, concept_1, guidnace_scale_1,neg_guidance_1,row1, row2, sega_concepts_counter],queue=False)
+                add_2.click(fn=update_counter,inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3], outputs=sega_concepts_counter,queue=False).then(fn = update_display_concept, inputs=[add_2, edit_concept_2, neg_guidance_2, sega_concepts_counter],  outputs=[box2, concept_2, guidnace_scale_2,neg_guidance_2,row2, row3, sega_concepts_counter],queue=False)
+                add_3.click(fn=update_counter,inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3], outputs=sega_concepts_counter,queue=False).then(fn = update_display_concept, inputs=[add_3, edit_concept_3, neg_guidance_3, sega_concepts_counter],  outputs=[box3, concept_3, guidnace_scale_3,neg_guidance_3,row3, row4, sega_concepts_counter],queue=False)
+                
+                remove_1.click(fn = update_display_concept, inputs=[remove_1, edit_concept_1, neg_guidance_1, sega_concepts_counter],  outputs=[box1, concept_1, guidnace_scale_1,neg_guidance_1,row1, row2, sega_concepts_counter],queue=False)
+                remove_2.click(fn = update_display_concept, inputs=[remove_2, edit_concept_2, neg_guidance_2 ,sega_concepts_counter],  outputs=[box2, concept_2, guidnace_scale_2,neg_guidance_2,row2, row3,sega_concepts_counter],queue=False)
+                remove_3.click(fn = update_display_concept, inputs=[remove_3, edit_concept_3, neg_guidance_3, sega_concepts_counter],  outputs=[box3, concept_3, guidnace_scale_3,neg_guidance_3, row3, row4, sega_concepts_counter],queue=False)
+                
+                remove_concept1.click(
+                    fn=update_counter,inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3], outputs=sega_concepts_counter,queue=False).then(
+                    fn = remove_concept, inputs=[sega_concepts_counter,gr.State(1)], outputs= [box1, concept_1, edit_concept_1, guidnace_scale_1,neg_guidance_1,warmup_1, threshold_1, add_1, dropdown1, row1, row2, row3, row4, sega_concepts_counter],queue=False)
+                remove_concept2.click(
+                    fn=update_counter,inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3], outputs=sega_concepts_counter,queue=False).then(
+                    fn = remove_concept,  inputs=[sega_concepts_counter,gr.State(2)], outputs=[box2, concept_2, edit_concept_2, guidnace_scale_2,neg_guidance_2, warmup_2, threshold_2, add_2 , dropdown2, row1, row2, row3, row4, sega_concepts_counter],queue=False)
+                remove_concept3.click(
+                    fn=update_counter,inputs=[sega_concepts_counter,edit_concept_1,edit_concept_2,edit_concept_3], outputs=sega_concepts_counter,queue=False).then(
+                    fn = remove_concept,inputs=[sega_concepts_counter,gr.State(3)], outputs=[box3, concept_3, edit_concept_3, guidnace_scale_3,neg_guidance_3,warmup_3, threshold_3,  add_3, dropdown3, row1, row2, row3, row4, sega_concepts_counter],queue=False)
+
+                run_button.click(
+                    fn=edit,
+                    inputs=[input_image,
+                            wts, zs, attention_store,
+                            text_cross_attention_maps,
+                            tar_prompt,
+                            image_caption,
+                            steps,
+                            skip,
+                            tar_cfg_scale,
+                            edit_concept_1,edit_concept_2,edit_concept_3,
+                            guidnace_scale_1,guidnace_scale_2,guidnace_scale_3,
+                            warmup_1, warmup_2, warmup_3,
+                            neg_guidance_1, neg_guidance_2, neg_guidance_3,
+                            threshold_1, threshold_2, threshold_3, do_reconstruction, reconstruction,
+                            do_inversion,
+                            seed, 
+                            randomize_seed,
+                            src_prompt,
+                            src_cfg_scale,
+                            mask_type
+                    ],
+                    outputs=[sega_edited_image, reconstruct_button, do_reconstruction, reconstruction, wts, zs,attention_store, text_cross_attention_maps, do_inversion]
+                    
+                )
+
+
+
+                input_image.change(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue=False,
+                    concurrency_limit=None
+                ).then(
+                    fn = randomize_seed_fn,
+                    inputs = [seed, randomize_seed],
+                    outputs = [seed],
+                    queue=False,
+                    concurrency_limit=None
+                )
+                
+                # Automatically start inverting upon input_image change
+                input_image.upload(
+                    fn = crop_image,
+                    inputs = [input_image],
+                    outputs = [input_image],
+                    queue=False,
+                    concurrency_limit=None,
+                ).then(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue=False,
+                    concurrency_limit=None        
+                ).then(
+                    fn = randomize_seed_fn,
+                    inputs = [seed, randomize_seed],
+                    outputs = [seed], 
+                    queue=False,
+                    concurrency_limit=None        
+                ).then(fn = caption_image,
+                    inputs = [input_image],
+                    outputs = [tar_prompt, image_caption],
+                    queue=False,
+                    concurrency_limit=None        
+                )
+
+                # Repeat inversion (and reconstruction) when these params are changed:
+                src_prompt.change(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue = False
+                ).then(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                steps.change(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue = False
+                ).then(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                src_cfg_scale.change(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue = False
+                ).then(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                # Repeat only reconstruction these params are changed:
+                tar_prompt.change(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                tar_cfg_scale.change(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                skip.change(
+                    fn = reset_do_inversion,
+                    outputs = [do_inversion],
+                    queue = False
+                ).then(
+                    fn = reset_do_reconstruction,
+                    outputs = [do_reconstruction],
+                    queue = False
+                )
+
+                seed.change(
+                    fn=reset_do_inversion,
+                    outputs=[do_inversion],
+                    queue=False
+                ).then(
+                    fn=reset_do_reconstruction,
+                    outputs=[do_reconstruction],
+                    queue=False
+                )
+
+                dropdown1.change(fn=update_dropdown_parms, inputs = [dropdown1], outputs = [guidnace_scale_1,warmup_1,  threshold_1], queue=False)
+                dropdown2.change(fn=update_dropdown_parms, inputs = [dropdown2], outputs = [guidnace_scale_2,warmup_2,  threshold_2], queue=False)
+                dropdown3.change(fn=update_dropdown_parms, inputs = [dropdown3], outputs = [guidnace_scale_3,warmup_3,  threshold_3], queue=False)
+
+                clear_components = [input_image,ddpm_edited_image,ddpm_edited_image,sega_edited_image, do_inversion,
+                                            src_prompt, steps, src_cfg_scale, seed,
+                                            tar_prompt, skip, tar_cfg_scale, reconstruct_button,reconstruct_button,
+                                            edit_concept_1, guidnace_scale_1,guidnace_scale_1,warmup_1,  threshold_1, neg_guidance_1,dropdown1, concept_1, concept_1, row1,
+                                            edit_concept_2, guidnace_scale_2,guidnace_scale_2,warmup_2,  threshold_2, neg_guidance_2,dropdown2, concept_2, concept_2, row2,
+                                            edit_concept_3, guidnace_scale_3,guidnace_scale_3,warmup_3,  threshold_3, neg_guidance_3,dropdown3, concept_3,concept_3, row3,
+                                            row4,sega_concepts_counter, box1, box2, box3 ]
+
+                clear_components_output_vals = [None, None,gr.update(visible=False), None, True,
+                                "", DEFAULT_DIFFUSION_STEPS, DEFAULT_SOURCE_GUIDANCE_SCALE, DEFAULT_SEED,
+                                "", DEFAULT_SKIP_STEPS, DEFAULT_TARGET_GUIDANCE_SCALE, gr.update(value="Show Reconstruction"),gr.update(visible=False),
+                                "", DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,gr.update(visible=False), DEFAULT_WARMUP_STEPS, DEFAULT_THRESHOLD, DEFAULT_NEGATIVE_GUIDANCE, "custom","", gr.update(visible=False), gr.update(visible=True),
+                                "", DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,gr.update(visible=False), DEFAULT_WARMUP_STEPS, DEFAULT_THRESHOLD, DEFAULT_NEGATIVE_GUIDANCE, "custom","", gr.update(visible=False), gr.update(visible=False),
+                                "", DEFAULT_SEGA_CONCEPT_GUIDANCE_SCALE,gr.update(visible=False), DEFAULT_WARMUP_STEPS, DEFAULT_THRESHOLD, DEFAULT_NEGATIVE_GUIDANCE, "custom","",gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=0),
+                                    gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)]
+
+
+                clear_button.click(lambda: clear_components_output_vals, outputs = clear_components)
+
+                reconstruct_button.click(lambda: ddpm_edited_image.update(visible=True), outputs=[ddpm_edited_image]).then(fn = reconstruct,
+                            inputs = [tar_prompt,
+                            image_caption,
+                            tar_cfg_scale,
+                            skip,
+                            wts, zs,
+                            do_reconstruction,
+                            reconstruction,
+                                    reconstruct_button],
+                            outputs = [ddpm_edited_image,reconstruction, ddpm_edited_image, do_reconstruction, reconstruct_button])
+
+                randomize_seed.change(
+                    fn = randomize_seed_fn,
+                    inputs = [seed, randomize_seed],
+                    outputs = [seed],
+                    queue = False)
+
         # Scribble2Image: ControlNet
         with gr.Tab(label='Scribble2Image'):
             with gr.Column():
@@ -483,41 +990,6 @@ def demo():
             run_button.click(fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False).then(
                 fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
                 fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False)
-            
-        # Text2Image: DALL-E 3
-        with gr.Tab(label='Text2Image'):
-            gr.HTML(
-                """
-                    <div style="text-align: center; margin: 0 auto;">
-                    <div
-                        style="
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 0.8rem;
-                        font-size: 1.75rem;
-                        "
-                    >
-                        <h1 style="font-weight: 900; margin-bottom: 7px;margin-top:5px">
-                        DALL•E 3 XL
-                        </h1> 
-                    </div>
-                    <p style="margin-bottom: 10px; font-size: 94%; line-height: 23px;">
-                        This space demonstrates the work of the model <a style="text-decoration: underline;" href="https://huggingface.co/openskyml/dalle-3-xl">openskyml/dalle-3-xl</a>.
-                    </p>
-                    </div>
-                """
-            )
-
-            with gr.Row():
-                image_output = gr.Image(type="pil", label="Output Image", elem_id="gallery")
-                with gr.Column(elem_id="prompt-container"):
-                    text_prompt = gr.Textbox(label="Prompt", placeholder="a cute cat", lines=1, elem_id="prompt-text-input")
-                    text_button = gr.Button("Generate", variant='primary', elem_id="gen-button")
-
-            with gr.Accordion("Advanced settings", open=False):
-                negative_prompt = gr.Textbox(label="Negative Prompt", value="text, blurry, fuzziness", lines=1, elem_id="negative-prompt-text-input")
-
-            text_button.click(query, inputs=[text_prompt, negative_prompt], outputs=image_output)
 
     return iface
 
