@@ -34,8 +34,7 @@ from svd.sgm.util import default, instantiate_from_config
 from lavie.base.app import infer
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
-from bark_clone.share_btn import community_icon_html, loading_icon_html, share_js
-from bark_clone.app import title, description, default_text, AVAILABLE_PROMPTS, article, examples, gen_tts
+from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -319,7 +318,7 @@ def demo():
                         s2i_end_btn = gr.Button("Submit")
                     with gr.Tab(label='Result'):
                         with gr.Row():
-                            output_image = gr.Image(label="Output", format="numpy")
+                            output_image = gr.Image(label="Output")
             s2i_end_btn.click(inputs=[scribble_upload_prompt, scribble_upload],
                             outputs=[output_image],
                             fn = process_upload_scribble
@@ -449,7 +448,6 @@ def demo():
 
         # Speech Synthesis: Bark
         with gr.Tab(label='Speech Synthesis'):
-            gr.Markdown(title)
             gr.Markdown(description)
             with gr.Row():
                 with gr.Column():
@@ -461,21 +459,12 @@ def demo():
                 with gr.Column():
                     audio_out = gr.Audio(label="Generated Audio",
                                         type="numpy", elem_id="audio_out")
-                    with gr.Row(visible=False) as share_row:
-                        with gr.Group(elem_id="share-btn-container"):
-                            community_icon = gr.HTML(community_icon_html)
-                            loading_icon = gr.HTML(loading_icon_html)
-                            share_button = gr.Button(
-                                "Share to community", elem_id="share-btn")
-                            share_button.click(None, [], [], _js=share_js)
             inputs = [input_text, options]
             outputs = [audio_out]
-            gr.Examples(examples=examples, fn=gen_tts, inputs=inputs,
-                        outputs=outputs, cache_examples=True)
             gr.Markdown(article)
-            run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=share_row, queue=False).then(
+            run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=outputs, queue=False).then(
                 fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
-                fn=lambda: gr.update(visible=True), inputs=None, outputs=share_row, queue=False)
+                fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False)
 
     return iface
 

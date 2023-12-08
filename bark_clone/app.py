@@ -2,7 +2,6 @@ import numpy as np
 import gradio as gr
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
-from bark_clone.share_btn import community_icon_html, loading_icon_html, share_js
 
 DEBUG_MODE = False
 
@@ -20,8 +19,6 @@ PROMPT_LOOKUP["Unconditional"] = None
 PROMPT_LOOKUP["Announcer"] = "announcer"
 
 default_text = "Hello, my name is Suno. And, uh — and I like pizza. [laughs]\nBut I also have other interests such as playing tic tac toe."
-
-title = "# 🐶 Bark</div>"
 
 description = """
 <div>
@@ -107,15 +104,6 @@ Gradio demo supported by 🤗 Hugging Face. Bark is licensed under a non-commerc
 
 """
 
-examples = [
-    ["Please surprise me and speak in whatever voice you enjoy. Vielen Dank und Gesundheit!",
-        "Unconditional"],  # , 0.7, 0.7],
-    ["Hello, my name is Suno. And, uh — and I like pizza. [laughs] But I also have other interests such as playing tic tac toe.",
-        "Speaker 1 (en)"],  # , 0.7, 0.7],
-    ["Buenos días Miguel. Tu colega piensa que tu alemán es extremadamente malo. But I suppose your english isn't terrible.",
-        "Speaker 0 (es)"],  # , 0.7, 0.7],
-]
-
 
 def gen_tts(text, history_prompt):  # , temp_semantic, temp_waveform):
     history_prompt = PROMPT_LOOKUP[history_prompt]
@@ -165,7 +153,6 @@ css = """
         }
 """
 with gr.Blocks(css=css) as block:
-    gr.Markdown(title)
     gr.Markdown(description)
     with gr.Row():
         with gr.Column():
@@ -177,21 +164,12 @@ with gr.Blocks(css=css) as block:
         with gr.Column():
             audio_out = gr.Audio(label="Generated Audio",
                                  type="numpy", elem_id="audio_out")
-            with gr.Row(visible=False) as share_row:
-                with gr.Group(elem_id="share-btn-container"):
-                    community_icon = gr.HTML(community_icon_html)
-                    loading_icon = gr.HTML(loading_icon_html)
-                    share_button = gr.Button(
-                        "Share to community", elem_id="share-btn")
-                    share_button.click(None, [], [], _js=share_js)
     inputs = [input_text, options]
     outputs = [audio_out]
-    gr.Examples(examples=examples, fn=gen_tts, inputs=inputs,
-                outputs=outputs, cache_examples=True)
     gr.Markdown(article)
-    run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=share_row, queue=False).then(
+    run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=outputs, queue=False).then(
         fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
-        fn=lambda: gr.update(visible=True), inputs=None, outputs=share_row, queue=False)
+        fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False)
 
 block.queue()
 block.launch()
