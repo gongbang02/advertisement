@@ -38,6 +38,10 @@ from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
 from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
 from ledits.app import edit
+from ledits.constants import *
+from ledits.scheduling_dpmsolver_multistep_inject import DPMSolverMultistepSchedulerInject
+from ledits.pipeline_semantic_stable_diffusion_img2img_solver import SemanticStableDiffusionImg2ImgPipeline_DPMSolver
+from ledits.utils import *
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 

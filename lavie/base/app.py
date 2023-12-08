@@ -144,7 +144,3 @@ with gr.Blocks(css='style.css') as demo:
         ex.dataset.headers = [""]
          
     submit_btn.click(infer, inputs, outputs)
-
-demo.queue(max_size=12).launch()
-
-

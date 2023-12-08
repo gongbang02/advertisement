@@ -170,6 +170,3 @@ with gr.Blocks(css=css) as block:
     run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=outputs, queue=False).then(
         fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
         fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False)
-
-block.queue()
-block.launch()
