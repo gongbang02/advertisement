@@ -6,6 +6,8 @@ import torch
 from glob import glob
 from pathlib import Path
 from typing import Optional
+import requests
+import io
 import numpy as np
 from einops import rearrange, repeat
 from fire import Fire
@@ -35,7 +37,6 @@ from lavie.base.app import infer
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
 from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
-from dalle import query
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -303,8 +304,20 @@ def toggle_audio_src(choice):
 
 def process_upload_scribble(scribble_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
-    #controlNetOut = Image.fromarray(controlNetOut, 'RGB')
     return controlNetOut
+
+def query(prompt, is_negative=False, steps=1, cfg_scale=6, seed=None):
+    payload = {
+        "inputs": prompt,
+        "is_negative": is_negative,
+        "steps": steps,
+        "cfg_scale": cfg_scale,
+        "seed": seed if seed is not None else random.randint(-1, 2147483647)
+        }
+
+    image_bytes = requests.post(API_URL, headers=headers, json=payload).content
+    image = Image.open(io.BytesIO(image_bytes))
+    return image
 
 
 def demo():
