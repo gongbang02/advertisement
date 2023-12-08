@@ -7,6 +7,9 @@ import hashlib
 os.system('pip install -e ./simple-knn')
 #os.system('pip install -e ./diff-gaussian-rasterization')
 
+_TITLE = '''DreamGaussian: Generative Gaussian Splatting for Efficient 3D Content Creation'''
+_IMG_USER_GUIDE = "Please upload an image in the block above (or choose an example above) and click **Generate 3D**."
+
 # check if there is a picture uploaded or selected
 def check_img_input(control_image):
     if control_image is None:
@@ -51,14 +54,7 @@ def optimize_stage_2(image_block: Image.Image, elevation_slider: float):
 
 
 if __name__ == "__main__":
-    _TITLE = '''DreamGaussian: Generative Gaussian Splatting for Efficient 3D Content Creation'''
-    _IMG_USER_GUIDE = "Please upload an image in the block above (or choose an example above) and click **Generate 3D**."
-
-    # load images in 'data' folder as examples
-    example_folder = os.path.join(os.path.dirname(__file__), 'data')
-    example_fns = os.listdir(example_folder)
-    example_fns.sort()
-    examples_full = [os.path.join(example_folder, x) for x in example_fns if x.endswith('.png')]
+    
 
     # Compose demo layout & data flow
     with gr.Blocks(title=_TITLE, theme=gr.themes.Soft()) as demo:
