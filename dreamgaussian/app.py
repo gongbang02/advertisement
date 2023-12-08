@@ -7,7 +7,7 @@ from dreamgaussian.main import GUI
 from dreamgaussian.main2 import GUI2
 from omegaconf import OmegaConf
 
-os.system('pip install -e ./simple-knn')
+#os.system('pip install -e ./simple-knn')
 #os.system('pip install -e ./diff-gaussian-rasterization')
 
 _TITLE = '''DreamGaussian: Generative Gaussian Splatting for Efficient 3D Content Creation'''
