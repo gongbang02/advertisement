@@ -37,7 +37,7 @@ from lavie.base.app import infer
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
 from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
-from ledits.app import edit
+from ledits.app import edit, crop_image, caption_image, reconstruct
 from ledits.constants import *
 from ledits.scheduling_dpmsolver_multistep_inject import DPMSolverMultistepSchedulerInject
 from ledits.pipeline_semantic_stable_diffusion_img2img_solver import SemanticStableDiffusionImg2ImgPipeline_DPMSolver
@@ -696,14 +696,12 @@ def demo():
                 input_image.change(
                     fn = reset_do_inversion,
                     outputs = [do_inversion],
-                    queue=False,
-                    concurrency_limit=None
+                    queue=False
                 ).then(
                     fn = randomize_seed_fn,
                     inputs = [seed, randomize_seed],
                     outputs = [seed],
-                    queue=False,
-                    concurrency_limit=None
+                    queue=False
                 )
                 
                 # Automatically start inverting upon input_image change
@@ -711,24 +709,20 @@ def demo():
                     fn = crop_image,
                     inputs = [input_image],
                     outputs = [input_image],
-                    queue=False,
-                    concurrency_limit=None,
+                    queue=False
                 ).then(
                     fn = reset_do_inversion,
                     outputs = [do_inversion],
-                    queue=False,
-                    concurrency_limit=None        
+                    queue=False     
                 ).then(
                     fn = randomize_seed_fn,
                     inputs = [seed, randomize_seed],
                     outputs = [seed], 
-                    queue=False,
-                    concurrency_limit=None        
+                    queue=False     
                 ).then(fn = caption_image,
                     inputs = [input_image],
                     outputs = [tar_prompt, image_caption],
-                    queue=False,
-                    concurrency_limit=None        
+                    queue=False    
                 )
 
                 # Repeat inversion (and reconstruction) when these params are changed:
