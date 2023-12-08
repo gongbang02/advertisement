@@ -639,14 +639,12 @@ with gr.Blocks(css="style.css") as demo:
     input_image.change(
         fn = reset_do_inversion,
         outputs = [do_inversion],
-        queue=False,
-        concurrency_limit=None
+        queue=False
     ).then(
         fn = randomize_seed_fn,
         inputs = [seed, randomize_seed],
         outputs = [seed],
-        queue=False,
-        concurrency_limit=None
+        queue=False
     )
     
     # Automatically start inverting upon input_image change
