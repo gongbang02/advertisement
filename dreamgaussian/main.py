@@ -10,11 +10,11 @@ import torch.nn.functional as F
 
 import rembg
 
-from cam_utils import orbit_camera, OrbitCamera
-from gs_renderer import Renderer, MiniCam
+from dreamgaussian.cam_utils import orbit_camera, OrbitCamera
+from dreamgaussian.gs_renderer import Renderer, MiniCam
 
-from grid_put import mipmap_linear_grid_put_2d
-from mesh import Mesh, safe_normalize
+from dreamgaussian.grid_put import mipmap_linear_grid_put_2d
+from dreamgaussian.mesh import Mesh, safe_normalize
 
 class GUI:
     def __init__(self, opt):

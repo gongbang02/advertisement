@@ -16,6 +16,8 @@ from torchvision.transforms import ToTensor
 from PIL import Image
 import uuid
 import random
+import hashlib
+import subprocess
 from huggingface_hub import hf_hub_download
 from moviepy.editor import VideoFileClip, AudioFileClip
 from controlnet.gradio_scribble import process
@@ -42,6 +44,8 @@ from ledits.constants import *
 from ledits.scheduling_dpmsolver_multistep_inject import DPMSolverMultistepSchedulerInject
 from ledits.pipeline_semantic_stable_diffusion_img2img_solver import SemanticStableDiffusionImg2ImgPipeline_DPMSolver
 from ledits.utils import *
+from dreamgaussian.app import _TITLE, _IMG_USER_GUIDE, check_img_input, optimize, optimize_stage_1, optimize_stage_2
+
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -877,6 +881,45 @@ def demo():
                     result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery", columns=2, height='auto')
             ips = [input_image, prompt, a_prompt, n_prompt, num_samples, image_resolution, ddim_steps, guess_mode, strength, scale, seed, eta]
             run_button.click(fn=process_interactive, inputs=ips, outputs=[result_gallery])
+
+        # Image-to-3D: DreamGaussian
+        with gr.Tab(label='Image-to-3D'):
+            with gr.Row():
+                with gr.Column(scale=1):
+                    gr.Markdown('# ' + _TITLE)
+
+            # Image-to-3D
+            with gr.Row(variant='panel'):
+                left_column = gr.Column(scale=5)
+                with left_column:
+                    image_block = gr.Image(type='pil', image_mode='RGBA', height=290, label='Input image', tool=None)
+
+                    elevation_slider = gr.Slider(-90, 90, value=0, step=1, label='Estimated elevation angle')
+                    gr.Markdown(
+                        "default to 0 (horizontal), range from [-90, 90]. If you upload a look-down image, try a value like -30")
+
+                    preprocess_chk = gr.Checkbox(True,
+                                                label='Preprocess image automatically (remove background and recenter object)')
+
+
+
+                with gr.Column(scale=5):
+                    obj3d_stage1 = gr.Model3D(clear_color=[0.0, 0.0, 0.0, 0.0], label="3D Model (Stage 1)")
+                    obj3d = gr.Model3D(clear_color=[0.0, 0.0, 0.0, 0.0], label="3D Model (Final)")
+
+                with left_column:
+                    img_run_btn = gr.Button("Generate 3D")
+                    img_guide_text = gr.Markdown(_IMG_USER_GUIDE, visible=True)
+
+                # if there is an input image, continue with inference
+                # else display an error message
+                img_run_btn.click(check_img_input, inputs=[image_block], queue=False).success(optimize_stage_1,
+                                                                                            inputs=[image_block,
+                                                                                                    preprocess_chk,
+                                                                                                    elevation_slider],
+                                                                                            outputs=[
+                                                                                                obj3d_stage1]).success(
+                    optimize_stage_2, inputs=[image_block, elevation_slider], outputs=[obj3d])
 
         # Text2Video: LaVie
         with gr.Tab(label='Text2Video'):

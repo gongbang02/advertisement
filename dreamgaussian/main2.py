@@ -11,8 +11,8 @@ import torch.nn.functional as F
 import trimesh
 import rembg
 
-from cam_utils import orbit_camera, OrbitCamera
-from mesh_renderer import Renderer
+from dreamgaussian.cam_utils import orbit_camera, OrbitCamera
+from dreamgaussian.mesh_renderer import Renderer
 
 # from kiui.lpips import LPIPS
 
