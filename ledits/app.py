@@ -652,24 +652,20 @@ with gr.Blocks(css="style.css") as demo:
         fn = crop_image,
         inputs = [input_image],
         outputs = [input_image],
-        queue=False,
-        concurrency_limit=None,
+        queue=False
     ).then(
         fn = reset_do_inversion,
         outputs = [do_inversion],
-        queue=False,
-        concurrency_limit=None        
+        queue=False     
     ).then(
         fn = randomize_seed_fn,
         inputs = [seed, randomize_seed],
         outputs = [seed], 
-        queue=False,
-        concurrency_limit=None        
+        queue=False      
     ).then(fn = caption_image,
         inputs = [input_image],
         outputs = [tar_prompt, image_caption],
-        queue=False,
-        concurrency_limit=None        
+        queue=False     
     )
 
     # Repeat inversion (and reconstruction) when these params are changed:
@@ -775,6 +771,3 @@ with gr.Blocks(css="style.css") as demo:
         inputs = [seed, randomize_seed],
         outputs = [seed],
         queue = False)
-
-demo.queue(default_concurrency_limit=1)
-demo.launch()
