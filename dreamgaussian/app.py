@@ -40,7 +40,7 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
 
     # stage 1
     subprocess.run([
-                       f'python main.py --config configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                       f'python dreamgaussian/main.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
                    shell=True)
 
     return f'logs/{img_hash}_mesh.glb'
@@ -50,7 +50,7 @@ def optimize_stage_2(image_block: Image.Image, elevation_slider: float):
     img_hash = hashlib.sha256(image_block.tobytes()).hexdigest()
     # stage 2
     subprocess.run([
-                       f'python main2.py --config configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                       f'python dreamgaussian/main2.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
                    shell=True)
 
     return f'logs/{img_hash}.glb'
