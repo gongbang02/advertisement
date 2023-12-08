@@ -37,7 +37,7 @@ def optimize_stage_1(image_block: Image.Image, preprocess_chk: bool, elevation_s
 
     # stage 1
     subprocess.run([
-                       f'python main.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                       f'python dreamgaussian/main.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
                    shell=True)
 
     return f'logs/{img_hash}_mesh.glb'
@@ -47,59 +47,8 @@ def optimize_stage_2(image_block: Image.Image, elevation_slider: float):
     img_hash = hashlib.sha256(image_block.tobytes()).hexdigest()
     # stage 2
     subprocess.run([
-                       f'python main2.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
+                       f'python dreamgaussian/main2.py --config dreamgaussian/configs/image.yaml input=tmp_data/{img_hash}_rgba.png save_path={img_hash} mesh_format=glb elevation={elevation_slider} force_cuda_rast=True'],
                    shell=True)
 
     return f'logs/{img_hash}.glb'
 
-
-if __name__ == "__main__":
-    
-
-    # Compose demo layout & data flow
-    with gr.Blocks(title=_TITLE, theme=gr.themes.Soft()) as demo:
-        with gr.Row():
-            with gr.Column(scale=1):
-                gr.Markdown('# ' + _TITLE)
-
-        # Image-to-3D
-        with gr.Row(variant='panel'):
-            left_column = gr.Column(scale=5)
-            with left_column:
-                image_block = gr.Image(type='pil', image_mode='RGBA', height=290, label='Input image', tool=None)
-
-                elevation_slider = gr.Slider(-90, 90, value=0, step=1, label='Estimated elevation angle')
-                gr.Markdown(
-                    "default to 0 (horizontal), range from [-90, 90]. If you upload a look-down image, try a value like -30")
-
-                preprocess_chk = gr.Checkbox(True,
-                                             label='Preprocess image automatically (remove background and recenter object)')
-
-
-
-            with gr.Column(scale=5):
-                obj3d_stage1 = gr.Model3D(clear_color=[0.0, 0.0, 0.0, 0.0], label="3D Model (Stage 1)")
-                obj3d = gr.Model3D(clear_color=[0.0, 0.0, 0.0, 0.0], label="3D Model (Final)")
-
-            with left_column:
-                gr.Examples(
-                    examples=examples_full,  # NOTE: elements must match inputs list!
-                    inputs=[image_block],
-                    outputs=[obj3d_stage1, obj3d],
-                    fn=optimize,
-                    cache_examples=True,
-                    label='Examples (click one of the images below to start)',
-                    examples_per_page=40
-                )
-                img_run_btn = gr.Button("Generate 3D")
-                img_guide_text = gr.Markdown(_IMG_USER_GUIDE, visible=True)
-
-            # if there is an input image, continue with inference
-            # else display an error message
-            img_run_btn.click(check_img_input, inputs=[image_block], queue=False).success(optimize_stage_1,
-                                                                                          inputs=[image_block,
-                                                                                                  preprocess_chk,
-                                                                                                  elevation_slider],
-                                                                                          outputs=[
-                                                                                              obj3d_stage1]).success(
-                optimize_stage_2, inputs=[image_block, elevation_slider], outputs=[obj3d])
