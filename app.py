@@ -35,6 +35,7 @@ from lavie.base.app import infer
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
 from bark_clone.app import description, default_text, AVAILABLE_PROMPTS, article, gen_tts
+from dalle import query
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -42,6 +43,10 @@ hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filenam
 version = "svd_xt"
 device = "cuda"
 max_64_bit_int = 2**63 - 1
+
+API_URL = "https://api-inference.huggingface.co/models/openskyml/dalle-3-xl"
+API_TOKEN = "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"
+headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def load_model(
     config: str,
@@ -462,9 +467,44 @@ def demo():
             inputs = [input_text, options]
             outputs = [audio_out]
             gr.Markdown(article)
-            run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=outputs, queue=False).then(
+            run_button.click(fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False).then(
                 fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
                 fn=lambda: gr.update(visible=True), inputs=None, outputs=outputs, queue=False)
+            
+        # Text2Image: DALL-E 3
+        with gr.Tab(label='Text2Image'):
+            gr.HTML(
+                """
+                    <div style="text-align: center; margin: 0 auto;">
+                    <div
+                        style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.8rem;
+                        font-size: 1.75rem;
+                        "
+                    >
+                        <h1 style="font-weight: 900; margin-bottom: 7px;margin-top:5px">
+                        DALL•E 3 XL
+                        </h1> 
+                    </div>
+                    <p style="margin-bottom: 10px; font-size: 94%; line-height: 23px;">
+                        This space demonstrates the work of the model <a style="text-decoration: underline;" href="https://huggingface.co/openskyml/dalle-3-xl">openskyml/dalle-3-xl</a>.
+                    </p>
+                    </div>
+                """
+            )
+
+            with gr.Row():
+                image_output = gr.Image(type="pil", label="Output Image", elem_id="gallery")
+                with gr.Column(elem_id="prompt-container"):
+                    text_prompt = gr.Textbox(label="Prompt", placeholder="a cute cat", lines=1, elem_id="prompt-text-input")
+                    text_button = gr.Button("Generate", variant='primary', elem_id="gen-button")
+
+            with gr.Accordion("Advanced settings", open=False):
+                negative_prompt = gr.Textbox(label="Negative Prompt", value="text, blurry, fuzziness", lines=1, elem_id="negative-prompt-text-input")
+
+            text_button.click(query, inputs=[text_prompt, negative_prompt], outputs=image_output)
 
     return iface
 
