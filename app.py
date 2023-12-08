@@ -32,6 +32,7 @@ from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
 from svd.sgm.inference.helpers import embed_watermark
 from svd.sgm.util import default, instantiate_from_config
 from lavie.base.app import infer
+from bark.app import title, description, default_text, AVAILABLE_PROMPTS, community_icon_html, loading_icon_html, share_js, article, examples, gen_tts
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 
@@ -291,18 +292,7 @@ def toggle_audio_src(choice):
         return gr.update(source="microphone", value=None, label="Microphone")
     else:
         return gr.update(source="upload", value=None, label="File")
-
-def predict(scribble_prompt, music_prompt, scribble):
-    controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
-    controlNetOut = Image.fromarray(controlNetOut, 'RGB')
-    videoPath, _ = sample(image=resize_image(controlNetOut), seed=12345, randomize_seed=True, motion_bucket_id=225, fps_id=6, version="svd_xt", cond_aug=0.02, decoding_t=5, device="cuda", output_folder="output")
-    video_clip = VideoFileClip(videoPath)
-    vidDuration = video_clip.duration
-    musicOut = predict_full(model="facebook/musicgen-medium", decoder="MultiBand_Diffusion", text=music_prompt, melody=None, duration=vidDuration, topk=250, topp=0, temperature=1.0, cfg_coef=3.0)[1]
-    musicOut = AudioFileClip(musicOut)
-    final_clip = video_clip.set_audio(musicOut)
-    final_clip.write_videofile("video_with_music.mp4")
-    return "video_with_music.mp4"
+    
 
 def process_upload_scribble(scribble_prompt, scribble):
     controlNetOut = process(det="Scrible_HED", input_image=scribble, prompt=scribble_prompt, a_prompt="best quality", n_prompt="lowres, bad anatomy, bad hands, cropped, worst quality", num_samples=1, image_resolution=512, detect_resolution=512, ddim_steps=30, guess_mode=False, strength=1.0, scale=9.0, seed=12345, eta=1.0)[1]
@@ -313,26 +303,7 @@ def process_upload_scribble(scribble_prompt, scribble):
 def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
         gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
-        # Scratch2Video： ControlNet, Stable Video Diffusion, MusicGen
-        with gr.Tab(label='Scratch2Video'):
-            with gr.Column():
-                with gr.Row():
-                    with gr.Column():
-                        with gr.Row():
-                            scribble = gr.Image(label="Upload your scribble")
-                        with gr.Row():
-                            scribble_prompt = gr.Text(label='Describe your scene')
-                        with gr.Row():
-                            music_prompt = gr.Text(label='Describe your bgm')
-                        i2v_end_btn = gr.Button("Submit")
-                    with gr.Tab(label='Result'):
-                        with gr.Row():
-                            output_video = gr.Video(label="Ad Video", format="mp4")
-            i2v_end_btn.click(inputs=[scribble_prompt, music_prompt, scribble],
-                            outputs=[output_video],
-                            fn = predict
-            )
-
+        
         # Scribble2Image: ControlNet
         with gr.Tab(label='Scribble2Image'):
             with gr.Column():
@@ -472,6 +443,36 @@ def demo():
                                                                         temperature, cfg_coef],
                                                 outputs=[output, audio_output, diffusion_output, audio_diffusion])
             radio.change(toggle_audio_src, radio, [melody], queue=False, show_progress=False)
+
+        # Speech Synthesis: Bark
+        with gr.Tab(label='Speech Synthesis'):
+            gr.Markdown(title)
+            gr.Markdown(description)
+            with gr.Row():
+                with gr.Column():
+                    input_text = gr.Textbox(
+                        label="Input Text", lines=2, value=default_text, elem_id="input_text")
+                    options = gr.Dropdown(
+                        AVAILABLE_PROMPTS, value="Speaker 1 (en)", label="Acoustic Prompt", elem_id="speaker_option")
+                    run_button = gr.Button(text="Generate Audio", type="button")
+                with gr.Column():
+                    audio_out = gr.Audio(label="Generated Audio",
+                                        type="numpy", elem_id="audio_out")
+                    with gr.Row(visible=False) as share_row:
+                        with gr.Group(elem_id="share-btn-container"):
+                            community_icon = gr.HTML(community_icon_html)
+                            loading_icon = gr.HTML(loading_icon_html)
+                            share_button = gr.Button(
+                                "Share to community", elem_id="share-btn")
+                            share_button.click(None, [], [], _js=share_js)
+            inputs = [input_text, options]
+            outputs = [audio_out]
+            gr.Examples(examples=examples, fn=gen_tts, inputs=inputs,
+                        outputs=outputs, cache_examples=True)
+            gr.Markdown(article)
+            run_button.click(fn=lambda: gr.update(visible=False), inputs=None, outputs=share_row, queue=False).then(
+                fn=gen_tts, inputs=inputs, outputs=outputs, queue=True).then(
+                fn=lambda: gr.update(visible=True), inputs=None, outputs=share_row, queue=False)
 
     return iface
 
