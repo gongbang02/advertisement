@@ -32,7 +32,10 @@ from svd.scripts.util.detection.nsfw_and_watermark_dectection import \
 from svd.sgm.inference.helpers import embed_watermark
 from svd.sgm.util import default, instantiate_from_config
 from lavie.base.app import infer
-from bark.app import title, description, default_text, AVAILABLE_PROMPTS, community_icon_html, loading_icon_html, share_js, article, examples, gen_tts
+from bark import SAMPLE_RATE, generate_audio, preload_models
+from bark.generation import SUPPORTED_LANGS
+from bark_clone.share_btn import community_icon_html, loading_icon_html, share_js
+from bark_clone.app import title, description, default_text, AVAILABLE_PROMPTS, article, examples, gen_tts
 
 
 hf_hub_download(repo_id="stabilityai/stable-video-diffusion-img2vid-xt", filename="svd_xt.safetensors", local_dir="checkpoints") 

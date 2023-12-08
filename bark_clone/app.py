@@ -2,7 +2,7 @@ import numpy as np
 import gradio as gr
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from bark.generation import SUPPORTED_LANGS
-from bark.share_btn import community_icon_html, loading_icon_html, share_js
+from bark_clone.share_btn import community_icon_html, loading_icon_html, share_js
 
 DEBUG_MODE = False
 
