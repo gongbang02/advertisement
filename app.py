@@ -333,6 +333,15 @@ def demo():
     with gr.Blocks(analytics_enabled=False) as iface:
         gr.Markdown("<div align='center'> <h1> Ad Asset Generator </span> </h1> </div>")
         
+        with gr.Tab(label='Home'):
+            gr.Markdown(
+                """
+                Welcome to the Ad Asset Generator! This tool allows you to generate high quality images and videos for your ads. <br>
+                For more AI tools you can also explore the  [Huggingface Spaces](https://huggingface.co/spaces)
+                """
+            )
+
+
         # Text2Image: DALL-E 3
         with gr.Tab(label='Text2Image'):
             gr.HTML(
