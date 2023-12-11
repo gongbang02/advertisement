@@ -1,4 +1,4 @@
-# nih-ad
+# AI Toolbox for CREATE Design-a-thon
 
 # Set up
 Run the following code to set up and activate the environment:
